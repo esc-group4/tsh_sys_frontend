@@ -1,14 +1,13 @@
 .container {
-    padding: 16px;
-    background-color: #f0f0f0;
-  }
-  
-  .heading {
-    font-size: 24px;
-    color: #333;
-  }
-  
-  .highlight {
-    color: red;
-  }
-  
+  padding: 16px;
+  background-color: #f0f0f0;
+}
+
+.heading {
+  font-size: 24px;
+  color: #333;
+}
+
+.highlight {
+  color: red;
+}

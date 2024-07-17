@@ -1,0 +1,7 @@
+{
+  "extends": [
+    "prettier"
+  ]
+}
+
+// to make sure eslint and prettier work well tgt!
