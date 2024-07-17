@@ -11,7 +11,8 @@ jobs:
       - uses: actions/checkout@v4
       - name: Build and push image to container registry
         run: |
+          TIMESTAMP=$(date +'%Y-%m-%d.%H.%M')
           docker login -u asycodes -p ${{secrets.GH_ACCESS}} ghcr.io
           # version convention using timestamps rather than SHA256 commit
-          docker build . --tag ${{vars.REGISTRY_LINK}}/${{vars.IMAGE_NAME}}:v.$(date +'%Y-%m-%d.%H.%M')
-          docker push ${{vars.REGISTRY_LINK}}/${{vars.IMAGE_NAME}}:v.$(date +'%Y-%m-%d.%H.%M')
+          docker build . --tag ${{vars.REGISTRY_LINK}}/${{vars.IMAGE_NAME}}:v.$TIMESTAMP
+          docker push ${{vars.REGISTRY_LINK}}/${{vars.IMAGE_NAME}}:v.$TIMESTAMP

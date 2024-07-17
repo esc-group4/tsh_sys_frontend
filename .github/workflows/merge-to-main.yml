@@ -28,6 +28,9 @@ jobs:
           npm test -- --coverage
 
   run-linting:
+    permissions:
+      # Give the default GITHUB_TOKEN write permission to commit and push the changed files back to the repository.
+      contents: write
     needs: run-unit-tests # test code first BEFORE quality checks
     runs-on: ubuntu-latest
     env:
