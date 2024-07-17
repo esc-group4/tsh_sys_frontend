@@ -1,7 +1,8 @@
 {
-  "name": "escfrontend",
+  "name": "@esc-group4/esc-frontend",
   "version": "0.1.0",
   "private": true,
+  "description": "Frontend component of the Certification management system",
   "dependencies": {
     "@testing-library/jest-dom": "^5.17.0",
     "@testing-library/react": "^15.0.6",

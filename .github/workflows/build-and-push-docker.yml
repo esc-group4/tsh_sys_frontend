@@ -1,0 +1,17 @@
+name: build-and-push-to-docker
+run-name: Building docker image and push github container registry
+on:
+  push:
+    branches:
+      - 'main'
+jobs:
+  build_and_publish:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Build and push image to container registry
+        run: |
+          docker login -u asycodes -p ${{secrets.GH_ACCESS}} ghcr.io
+          # version convention using timestamps rather than SHA256 commit
+          docker build . --tag ${{vars.REGISTRY_LINK}}/${{vars.IMAGE_NAME}}:v.$(date +'%Y-%m-%d.%H.%M')
+          docker push ${{vars.REGISTRY_LINK}}/${{vars.IMAGE_NAME}}:v.$(date +'%Y-%m-%d.%H.%M')

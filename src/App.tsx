@@ -7,12 +7,15 @@ import Login from "./pages/Login/Login";
 
 function App() {
   return (
+    <div>
     <Router>
       <Routes>
-        <Route path="/" element={<Login />} />
+        <Route path="/login" element={<Login />} />
         <Route path="/dashboard" element={<Dashboard />} />
       </Routes>
     </Router>
+    <p>test</p>
+    </div>
   );
 }
 
