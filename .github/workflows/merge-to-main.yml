@@ -51,14 +51,11 @@ jobs:
       - name: Reformat with prettier
         run: |
           npm run format
-       - name: Commit and push changes
-        run: |
-          git checkout ${{ github.head_ref }}
-          git pull origin ${{ github.head_ref }}
-          git add .
-          git commit -m "Apply formatting changes"
-          git push origin ${{ github.head_ref }}
-
+      - name: Commit changes # TO TRACK CHANGES DUE TO PRETTIER REFORMAT
+        uses: stefanzweifel/git-auto-commit-action@v4
+        with:
+          commit_message: Apply formatting changes
+          branch: ${{ github.head_ref }}
       - name: Analysing the code with eslint
         run: |
           npm run lint
