@@ -2,7 +2,7 @@ import React from 'react'
 import logo from './assets/logo.svg'
 import ExampleComp from './components/exampleComponent/ExampleComp'
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom'
-import Dashboard from './pages/Dashboard/Dashboard'
+import EmployeeHome from './pages/employeeHome/employeeHome'
 import Login from './pages/Login/Login'
 
 function App() {
@@ -10,9 +10,8 @@ function App() {
     <div>
       <Router>
         <Routes>
-          <Route path="/" element={<Navigate to="/login" />} />
-          <Route path="/login" element={<Login />} />
-          <Route path="/dashboard" element={<Dashboard />} />
+          <Route path="/" element={<Login />} />
+          <Route path="/home" element={<EmployeeHome/>} />
         </Routes>
       </Router>
     </div>
