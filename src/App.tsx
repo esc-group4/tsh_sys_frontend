@@ -5,6 +5,8 @@ import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-d
 import EmployeeHome from './pages/employeeHome/employeeHome'
 import Login from './pages/Login/Login'
 
+// TODO : will need to accomodate different home directory for different 
+
 function App() {
   return (
     <div>
