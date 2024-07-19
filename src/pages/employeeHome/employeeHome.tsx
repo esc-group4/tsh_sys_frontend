@@ -2,56 +2,10 @@ import React from 'react';
 import './employee.css';
 import CourseCard from '../../components/CourseCard/CourseCard';
 import logo from '../../assets/profile.jpg';
+import { useCourses } from '../../contexts/CourseContext';
 
 const EmployeeHome: React.FC = () => {
-  // Sample data, replace with actual data fetching logic
-  const courses = [
-    {
-      title: 'Course 1',
-      deadline: '25-07-2024',
-      info: 'Details about Course 1',
-      location: 'Location A',
-      status: 'Upcoming',
-      countdown: '07 : 06 : 59'
-    },
-
-    {
-      title: 'Course 2',
-      deadline: '05-08-2024',
-      info: 'Details about Course 2',
-      location: 'Location B',
-      status: 'Evaluation Required',
-      countdown: '00 : 00 : 00'
-    },
-
-    {
-      title: 'Course 3',
-      deadline: '25-08-2024',
-      info: 'Details about Course 3',
-      location: 'Location C',
-      status: 'Completed',
-      countdown: '00 : 00 : 00'
-    },
-    {
-      title: 'Course 4',
-      deadline: '05-08-2024',
-      info: 'Details about Course 4',
-      location: 'Location D',
-      status: 'Expired',
-      countdown: '00 : 00 : 00'
-    },
-
-    {
-      title: 'Course 5',
-      deadline: '09-08-2024',
-      info: 'Details about Course 5',
-      location: 'Location E',
-      status: 'Evaluation Required',
-      countdown: '00 : 00 : 00'
-    }
-
-    // Add more courses as needed
-  ];
+  const { courses } = useCourses();
 
   // Define the order of statuses
   const statusOrder = ['Evaluation Required', 'Upcoming', 'Expired', 'Completed'];
@@ -96,6 +50,7 @@ const EmployeeHome: React.FC = () => {
       <div className="courses-container">
         {sortedCourses.map((course, index) => (
           <CourseCard
+            id={course.id}
             key={index}
             title={course.title}
             deadline={course.deadline}
@@ -103,6 +58,8 @@ const EmployeeHome: React.FC = () => {
             location={course.location}
             status={course.status}
             countdown={course.countdown}
+            description={course.description}
+            trainer={course.trainer}
           />
         ))}
       </div>

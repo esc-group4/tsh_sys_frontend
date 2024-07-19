@@ -69,3 +69,8 @@ html, body {
     background-color: #0056b3;
   }
   
+  .error-msg {
+    color: #e83e3e;
+    font-size: 1rem;
+    margin-bottom: 20px;
+}

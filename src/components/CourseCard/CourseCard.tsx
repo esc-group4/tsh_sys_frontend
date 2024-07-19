@@ -3,12 +3,15 @@ import { useNavigate } from 'react-router-dom';
 import './CourseCard.css';
 
 interface CourseProps {
+  id: number;
   title: string;
   deadline: string;
   info: string;
   location: string;
   status: string;
   countdown: string;
+  description: string;
+  trainer: string;
 }
 
 const getStatusClass = (status: string) => {
@@ -24,19 +27,15 @@ const getStatusClass = (status: string) => {
     }
 };
 
-const CourseCard: React.FC<CourseProps> = ({ title, deadline, info, location, status, countdown }) => {
+const CourseCard: React.FC<CourseProps> = ({ id, title, deadline, info, location, status, countdown, description, trainer }) => {
 
   const navigate = useNavigate();
 
   const handleClick = () => {
-    if (status === 'Upcoming') {
-      navigate('/coursedetails');
-    } else if (status === 'Expired') {
-      navigate('/coursedetails');
-    } else if (status === 'Completed') {
-      // Do nothing
+    if (['Upcoming', 'Expired'].includes(status)) {
+      navigate(`/course/${id}`);
     } else if (status === 'Evaluation Required') {
-      navigate('/evaluation');
+      navigate(`/evaluation/${id}`);
     }
     // No action for 'Completed'
   };
