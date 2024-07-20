@@ -19,28 +19,24 @@ const NavBar: React.FC<navbarProps> = ({ currentuserName, currentuserRole, curre
                     >
                         <span className="navbar-toggler-icon" />
                     </button>
-                    <div className="collapse navbar-collapse" id="navbarSupportedContent">
-                        <ul className="navbar-nav me-auto mb-2 mb-md-1">
-                            {navItems.map((items, index) => (
-                                <li
-                                    key={items}
-                                    className="nav-item"
-                                    onClick={() => setSelected(index)}
+                </div>
+                <div className="collapse navbar-collapse" id="navbarSupportedContent">
+                    <ul className="navbar-nav me-auto mb-2 mb-md-1">
+                        {navItems.map((item, index) => (
+                            <li
+                                key={item}
+                                className="nav-item"
+                                onClick={() => setSelected(index)}
+                            >
+                                <a
+                                    className={selected === index ? "nav-link active fw-bold" : "nav-link"}
+                                    href="#"
                                 >
-                                    <a
-                                        className={
-                                            selected === index
-                                                ? "nav-link active fw-bold"
-                                                : "nav-link"
-                                        }
-                                        href="#"
-                                    >
-                                        {items}
-                                    </a>
-                                </li>
-                            ))}
-                        </ul>
-                    </div>
+                                    {item}
+                                </a>
+                            </li>
+                        ))}
+                    </ul>
                 </div>
                 <div className="d-flex align-items-center">
                     <div className="text-end me-2">
@@ -51,8 +47,8 @@ const NavBar: React.FC<navbarProps> = ({ currentuserName, currentuserRole, curre
                         src={currentuserImage}
                         width="60"
                         height="60"
-                        className="d-inline-block align-center rounded-circle"
-                        alt=""
+                        className="d-inline-block align-center rounded-circle ms-2"
+                        alt="User"
                     />
                 </div>
             </div>

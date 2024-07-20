@@ -13,3 +13,14 @@ code {
   font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
     monospace;
 }
+
+.layout-container {
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+}
+.main-content {
+  flex-grow: 1;
+  padding: 20px; /* Optional: Add padding as needed */
+  overflow-y: auto; /* Optional: Handle overflow content */
+}

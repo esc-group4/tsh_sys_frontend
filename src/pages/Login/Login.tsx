@@ -7,16 +7,17 @@ const Login: React.FC = () => {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [isLoggedIn, setIsLoggedIn] = useState(false); // Add a state for login status
+  const [error, setError] = useState('');
 
   const handleLogin = (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
 
     // Dummy login
-    if (username === 'admin' && password === 'password') {
+    if (username === 'joanne.lim@tsh.sg' && password === 'password') {
       setIsLoggedIn(true);
     } else {
-      console.log('Invalid credentials');
-    }
+      setError('Invalid username / password');
+  }
   };
 
   if (isLoggedIn) {
@@ -50,6 +51,7 @@ const Login: React.FC = () => {
             />
           </div>
           <button type="submit">Login</button>
+          {error && <p className="error-msg">{error}</p>}
         </form>
       </div>
     </div>
