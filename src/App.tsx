@@ -6,6 +6,8 @@ import EmployeeHome from './pages/employeeHome/employeeHome'
 import HodHome from './pages/HOD/hodHome'
 import HodView from './pages/HOD/hodView'
 import HodSchedule from './pages/HOD/hodSchedule'
+import HRHome from './pages/HR/hrHome'
+import HRView from './pages/HR/hrView'
 import Login from './pages/Login/Login'
 
 function App() {
@@ -14,9 +16,11 @@ function App() {
       <Router>
         <Routes>
           <Route path="/" element={<Login />} />
-          <Route path="/hodSchedule" element={<HodSchedule/>} />
-          <Route path="/dashboard" element={<HodHome/>} />
+          <Route path="/dashboard" element={<HRHome/>} />
+          <Route path="/hrView" element={<HRView/>} />
+          <Route path="/hodHome" element={<HodHome/>} />
           <Route path="/hodView" element={<HodView />} />
+          <Route path="/hodSchedule" element={<HodSchedule/>} />
         </Routes>
       </Router>
     </div>

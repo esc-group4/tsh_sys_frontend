@@ -34,16 +34,16 @@ const HodView: React.FC = () => {
 };
 
 const trainingDetails = {
-    type: 'External',
-    department: 'Management, Finance & HR',
-    trainingName: 'Microsoft Office',
-    reasons: 'Improve proficiency with office apps',
-    date: '29/07/2024',
-    personnelInvolved: [
-      { employee: 'Alina Tan', id: 'TSH109962', department: 'Machining' },
-      { employee: 'Khoo Yong Lee', id: 'TSH113759', department: 'Machining' },
-    ],
-    status: 'Approved by HR',
+  type: itemData.type,
+  department: itemData.department || 'Unable to retrieve',
+  trainingName: itemData.trainingNeed,
+  reasons: 'Improve proficiency with office apps', /* IMPORTANT: NEED TO RETRIEVE INFORMATION FROM DATABASE */
+  date: itemData.date,
+  personnelInvolved: [ /* IMPORTANT: NEED TO RETRIEVE INFORMATION FROM DATABASE */
+    { employee: 'Alina Tan', id: 'TSH109962', department: 'Machining' },
+    { employee: 'Khoo Yong Lee', id: 'TSH113759', department: 'Machining' },
+  ],
+  status: itemData.status || 'Unable to retrieve',
 };
 
   return (
