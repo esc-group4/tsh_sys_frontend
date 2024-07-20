@@ -10,41 +10,43 @@ import CourseCompleted from './pages/CourseCompleted/CourseCompleted';
 import { CourseProvider } from './contexts/CourseContext';
 import currimage from "./assets/profile.jpg"
 import Layout from "./Layout"
-
+import './config/firebase-config'
+import { AuthProvider } from './contexts/UserContext';
 
 
 function App() {
   let items = ["others","others2"]
 
   return (
+    <AuthProvider>
+      <CourseProvider>
+        <Router>
+        <Routes>
+          <Route path="/" element={<Login />} />
+          <Route
+            element={
+              <Layout
+                currentuserName="Jason Mars"
+                currentuserRole="Clerk"
+                currentuserImage={currimage}
+                navItems={items}
+              />
+            }
+          >
+            <Route path="/employeehome" element={<EmployeeHome/>} />
+            <Route path="/hodhome" element={<EmployeeHome/>} />
+            <Route path="/hrhome" element={<EmployeeHome />} />
+            <Route path="/course/:id" element={<CourseDetails />} />
+            <Route path="/evaluation/:id" element={<TraineeEvaluation />} />
+            <Route path='/attendance/:id' element={<Attendance />} />
+            <Route path='/attendance-confirmation' element={<AttendanceConfirmation />} />
+            <Route path='/completion' element={<CourseCompleted />} />
+          </Route>
+        </Routes>
+      </Router>
 
-    <CourseProvider>
-      <Router>
-      <Routes>
-        <Route path="/" element={<Login />} />
-        <Route
-          element={
-            <Layout
-              currentuserName="Jason Mars"
-              currentuserRole="Clerk"
-              currentuserImage={currimage}
-              navItems={items}
-            />
-          }
-        >
-          <Route path="/employeehome" element={<EmployeeHome/>} />
-          <Route path="/hodhome" element={<EmployeeHome/>} />
-          <Route path="/hrhome" element={<EmployeeHome />} />
-          <Route path="/course/:id" element={<CourseDetails />} />
-          <Route path="/evaluation/:id" element={<TraineeEvaluation />} />
-          <Route path='/attendance/:id' element={<Attendance />} />
-          <Route path='/attendance-confirmation' element={<AttendanceConfirmation />} />
-          <Route path='/completion' element={<CourseCompleted />} />
-        </Route>
-      </Routes>
-    </Router>
-
-    </CourseProvider>
+      </CourseProvider>
+    </AuthProvider>
   );
 }
 
