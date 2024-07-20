@@ -51,6 +51,47 @@ const ErrorPopup: React.FC<{ errors: string[], onClose: () => void }> = ({ error
     );
 };
 
+const SuccessPopup: React.FC<{ onClose: () => void }> = ({ onClose }) => {
+    return (
+      <>
+        <div style={{
+          position: 'fixed',
+          top: 0,
+          left: 0,
+          right: 0,
+          bottom: 0,
+          backgroundColor: 'rgba(0, 0, 0, 0.5)',
+        }} />
+        <div style={{
+          position: 'fixed',
+          top: '50%',
+          left: '50%',
+          transform: 'translate(-50%, -50%)',
+          backgroundColor: 'white',
+          padding: '20px',
+          borderRadius: '8px',
+          boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1)',
+          maxWidth: '80%',
+          width: '400px'
+        }}>
+          <h3 style={{ marginTop: 0 }}>Success</h3>
+          <p>Training request successfully created!</p>
+          <button 
+            onClick={onClose}
+            style={{
+              backgroundColor: '#007bff',
+              color: 'white',
+              borderRadius: '4px',
+              cursor: 'pointer',
+            }}
+          >
+            Okay
+          </button>
+        </div>
+      </>
+    );
+};
+
 const ScheduleTrainingForm: React.FC = () => {
   const [isExternal, setIsExternal] = useState(true);
   const [trainerEmail, setTrainerEmail] = useState('');
@@ -63,6 +104,7 @@ const ScheduleTrainingForm: React.FC = () => {
   const navigate = useNavigate();
   const [showErrorPopup, setShowErrorPopup] = useState(false);
   const [errorMessages, setErrorMessages] = useState<string[]>([]);
+  const [showSuccessPopup, setShowSuccessPopup] = useState(false);
 
   useEffect(() => {
     setDepartment('Management');
@@ -131,6 +173,7 @@ const ScheduleTrainingForm: React.FC = () => {
           selectedEmployees,
         });
         // Send data to backend!
+        setShowSuccessPopup(true);
     }
   };
 
@@ -348,6 +391,14 @@ const ScheduleTrainingForm: React.FC = () => {
         <ErrorPopup 
           errors={errorMessages} 
           onClose={() => setShowErrorPopup(false)} 
+        />
+      )}
+      {showSuccessPopup && (
+        <SuccessPopup 
+            onClose={() => {
+            setShowSuccessPopup(false);
+            navigate(-1);
+            }} 
         />
       )}
     </div>
