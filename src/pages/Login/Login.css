@@ -1,22 +1,31 @@
 /* Login.css */
 
+html, body {
+  height: 100%;
+  margin: 0;
+  overflow: hidden; /* Prevent scrolling */
+}
+
 .login-wrapper {
     display: flex;
-    justify-content: center;
-    align-items: center;
-    height: 100vh;
+    justify-content: center; /* Horizontally center */
+    align-items: center; /* Vertically center */
+    height: 80vh;
     background-color: #f0f0f0;
+    overflow: hidden;
   }
   
   .login-container {
     max-width: 400px;
-    width: 100%;
+    width: 80%;
     padding: 20px;
     border: 1px solid #ccc;
     border-radius: 5px;
     box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
     background-color: #fff;
     text-align: center;
+    flex-direction: column; /* Arrange child elements in a column */
+    align-items: center; /* Center-align child elements */
   }
   
   .logo {
@@ -60,3 +69,8 @@
     background-color: #0056b3;
   }
   
+  .error-msg {
+    color: #e83e3e;
+    font-size: 1rem;
+    margin-bottom: 20px;
+}
