@@ -20,7 +20,7 @@ const Login: React.FC = () => {
   };
 
   if (isLoggedIn) {
-    return <Navigate to="/dashboard" />;
+    return <Navigate to="/employeehome" />;
   }
 
   return (
