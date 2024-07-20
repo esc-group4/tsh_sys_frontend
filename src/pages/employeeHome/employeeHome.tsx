@@ -1,11 +1,11 @@
 import React from 'react';
 import './employee.css';
 import CourseCard from '../../components/CourseCard/CourseCard';
-import logo from '../../assets/profile.jpg';
 import { useCourses } from '../../contexts/CourseContext';
 
 const EmployeeHome: React.FC = () => {
   const { courses } = useCourses();
+  let items = ["others","others2"]
 
   // Define the order of statuses
   const statusOrder = ['Evaluation Required', 'Upcoming', 'Expired', 'Completed'];
@@ -21,17 +21,7 @@ const EmployeeHome: React.FC = () => {
   const pendingEvaluationCount = courses.filter(course => course.status === 'Evaluation Required').length;
 
   return (
-    <div className="home-page">
-      <nav className="navbar">
-        <div className="user-info">
-          <div className="user-details">
-            <span className="user-name">Joanne Lim</span>
-            <span className="user-department">Technical Manager</span>
-          </div>
-          <img src={logo} alt="Logo" className="user-avatar" />
-        </div>
-      </nav>
-
+      <div className="home-page">
       <div className="header-info">
         <p className="welcome-message">Welcome to your training dashboard!</p>
         <div className="status-indicators">
@@ -64,6 +54,8 @@ const EmployeeHome: React.FC = () => {
         ))}
       </div>
     </div>
+
+
   );
 };
 

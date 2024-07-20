@@ -21,7 +21,7 @@ const Login: React.FC = () => {
   };
 
   if (isLoggedIn) {
-    return <Navigate to="/home" />;
+    return <Navigate to="/employeehome" />;
   }
 
   return (
