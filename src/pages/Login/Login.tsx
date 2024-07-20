@@ -24,10 +24,28 @@ const Login: React.FC = () => {
 
 
 
+
+
   const handleLogin = async(event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     const userCredential = await login(username, password); // we use the login from the user context
     if (userCredential) {
+      const user = userCredential.user;
+      const token = await user.getIdToken();
+      const response = await fetch('http://localhost:3001/api/verifyToken', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        },
+      });
+      
+  
+      if (!response.ok) {
+        throw new Error('Token verification failed');
+      }
+      const userData = await response.json();
+      console.log('User data:', userData);
       console.log("Login successful, userCredential:", userCredential);
       // You can now use the token to authenticate requests to your backend
       setIsLoggedIn(true);
