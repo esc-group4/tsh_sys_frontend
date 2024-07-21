@@ -1,9 +1,13 @@
 import React, { useState } from "react";
 import './navbar.css';
-import { navbarProps } from './navbar.types';
+import { useAuth } from "../../contexts/UserContext";
+import currentuserImage from "../../assets/profile.jpg"
 
-const NavBar: React.FC<navbarProps> = ({ currentuserName, currentuserRole, currentuserImage, navItems }) => {
+const NavBar: React.FC = () => {
     const [selected, setSelected] = useState(-1);
+    const { userData } = useAuth()
+    let navItems = ["others","others2"]
+
     return (
         <nav className="navbar navbar-expand-md navbar-dark bg-dark shadow">
             <div className="container-fluid d-flex justify-content-between align-items-center">
@@ -40,8 +44,8 @@ const NavBar: React.FC<navbarProps> = ({ currentuserName, currentuserRole, curre
                 </div>
                 <div className="d-flex align-items-center">
                     <div className="text-end me-2">
-                        <p className="curruserName mb-0">{currentuserName}</p>
-                        <p className="curruserRole mb-0">{currentuserRole}</p>
+                        <p className="curruserName mb-0">{userData?.name}</p>
+                        <p className="curruserRole mb-0">{userData?.role}</p>
                     </div>
                     <img
                         src={currentuserImage}

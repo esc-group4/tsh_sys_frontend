@@ -11,14 +11,14 @@ import { CourseProvider } from './contexts/CourseContext';
 import currimage from "./assets/profile.jpg"
 import Layout from "./Layout"
 import './config/firebase-config'
-import { AuthProvider } from './contexts/UserContext';
+import { useAuth } from './contexts/UserContext';
 
 
 function App() {
-  let items = ["others","others2"]
+  const { userData } = useAuth()
 
   return (
-    <AuthProvider>
+
       <CourseProvider>
         <Router>
         <Routes>
@@ -26,10 +26,6 @@ function App() {
           <Route
             element={
               <Layout
-                currentuserName="Jason Mars"
-                currentuserRole="Clerk"
-                currentuserImage={currimage}
-                navItems={items}
               />
             }
           >
@@ -46,7 +42,7 @@ function App() {
       </Router>
 
       </CourseProvider>
-    </AuthProvider>
+
   );
 }
 

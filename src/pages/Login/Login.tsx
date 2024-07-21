@@ -2,9 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Navigate, useNavigate } from 'react-router-dom';
 import './Login.css';
 import logo from '../../assets/tsh.png';
-import { signInWithEmailAndPassword } from "firebase/auth";
 import { auth } from "../../config/firebase-config";
-import { LoginProps } from './Login.types';
 import { useAuth } from "../../contexts/UserContext";
 
 const Login: React.FC = () => {
@@ -12,7 +10,7 @@ const Login: React.FC = () => {
   const [password, setPassword] = useState('');
   const [isLoggedIn, setIsLoggedIn] = useState(false); // Add a state for login status
   const [error, setError] = useState('');
-  const { currentUser, login  } = useAuth();
+  const { currentUser, login, setUserData   } = useAuth();
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
 
@@ -46,10 +44,11 @@ const Login: React.FC = () => {
       }
       const userData = await response.json();
       console.log('User data:', userData);
-      console.log("Login successful, userCredential:", userCredential);
-      // You can now use the token to authenticate requests to your backend
+      setUserData(userData);
       setIsLoggedIn(true);
-      navigate("/employeeHome"); // will change based on the user's role
+      if(userData.role == "employee"){
+        navigate("/employeeHome"); // will change based on the user's role
+      }
     } else {
       setError("Failed to sign in. Please check your credentials and try again.");
     }

@@ -2,29 +2,20 @@ import React, { createContext, useContext, useState, useEffect, ReactNode, Dispa
 import { signInWithEmailAndPassword, onAuthStateChanged, User, UserCredential } from "firebase/auth";
 import { auth } from "../config/firebase-config";
 
+// diff between currentUser and userData is that currentUser is the firebase instance, while userData is the data from our Database (mysql)
+
+
 interface AuthContextType {
   currentUser: User | null;
   login: (email: string, password: string) => Promise<UserCredential>;
-
+  userData: any;
+  setUserData: Dispatch<SetStateAction<any>>; 
 }
 
 interface AuthProviderProps {
     children: ReactNode;
   }
 
- // PUT THIS HERE FOR FUTURE USE 
-  const signIn = async (email: string, password: string): Promise<string | null> => {
-    try {
-      const userCredential = await signInWithEmailAndPassword(auth, email, password);
-      const user = userCredential.user;
-      const token = await user.getIdToken();
-      // Send the token to your backend, some kind of axios or fetch thingy
-      return token;
-    } catch (error) {
-      console.error("Error signing in:", error);
-      return null;
-    }
-  };
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
@@ -39,6 +30,7 @@ export function useAuth() {
 export function AuthProvider({ children }: AuthProviderProps) {
   const [currentUser, setCurrentUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
+  const [userData, setUserData] = useState<any>(null); // Add userData state
   
 
   function login(email: string, password: string): Promise<UserCredential> {
@@ -59,7 +51,9 @@ export function AuthProvider({ children }: AuthProviderProps) {
 
   const value = {
     currentUser,
-    login
+    login,
+    userData,
+    setUserData,
   };
   
 
