@@ -2,10 +2,12 @@ import React from 'react';
 import './employee.css';
 import CourseCard from '../../components/CourseCard/CourseCard';
 import { useCourses } from '../../contexts/CourseContext';
+import { useAuth } from '../../contexts/UserContext';
 
 const EmployeeHome: React.FC = () => {
   const { courses } = useCourses();
   let items = ["others","others2"]
+  const { userData  } = useAuth();
 
   // Define the order of statuses
   const statusOrder = ['Evaluation Required', 'Upcoming', 'Expired', 'Completed'];

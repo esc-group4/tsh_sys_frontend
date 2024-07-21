@@ -6,13 +6,12 @@ import { Outlet } from 'react-router-dom';
 import { navbarProps } from './components/navbar/navbar.types';
 import './index.css';
 
-interface LayoutProps extends navbarProps {}
 
-const Layout: React.FC<LayoutProps> = (props) => {
+const Layout: React.FC = () => {
   return (
     <div className='layout-container'>
       <NavBar 
-        {...props}
+
       />
     <main className="main-content">
         <Outlet />

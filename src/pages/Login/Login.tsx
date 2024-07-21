@@ -1,28 +1,60 @@
-import React, { useState } from 'react';
-import { Navigate } from 'react-router-dom';
+import React, { useState, useEffect } from 'react';
+import { Navigate, useNavigate } from 'react-router-dom';
 import './Login.css';
 import logo from '../../assets/tsh.png';
+import { auth } from "../../config/firebase-config";
+import { useAuth } from "../../contexts/UserContext";
 
 const Login: React.FC = () => {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [isLoggedIn, setIsLoggedIn] = useState(false); // Add a state for login status
   const [error, setError] = useState('');
+  const { currentUser, login, setUserData   } = useAuth();
+  const [loading, setLoading] = useState(false);
+  const navigate = useNavigate();
 
-  const handleLogin = (event: React.FormEvent<HTMLFormElement>) => {
+  useEffect(() => {
+    if (currentUser) {
+      navigate("/");
+    }
+  }, [currentUser, navigate]);
+
+
+
+
+
+  const handleLogin = async(event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
-
-    // Dummy login
-    if (username === 'joanne.lim@tsh.sg' && password === 'password') {
+    const userCredential = await login(username, password); // we use the login from the user context
+    if (userCredential) {
+      const user = userCredential.user;
+      const token = await user.getIdToken();
+      const response = await fetch('http://localhost:3001/api/verifyToken', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        },
+      });
+      
+  
+      if (!response.ok) {
+        throw new Error('Token verification failed');
+      }
+      const userData = await response.json();
+      console.log('User data:', userData);
+      setUserData(userData);
       setIsLoggedIn(true);
+      if(userData.role == "employee"){
+        navigate("/employeeHome"); // will change based on the user's role
+      }
     } else {
-      setError('Invalid username / password');
-  }
+      setError("Failed to sign in. Please check your credentials and try again.");
+    }
+    setLoading(false);
   };
 
-  if (isLoggedIn) {
-    return <Navigate to="/employeehome" />;
-  }
 
   return (
     <div className="login-wrapper">
