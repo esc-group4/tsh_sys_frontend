@@ -30,7 +30,7 @@ const Login: React.FC = () => {
     if (userCredential) {
       const user = userCredential.user;
       const token = await user.getIdToken();
-      const response = await fetch('http://localhost:3001/api/verifyToken', {
+      const response = await fetch('http://localhost:3001/token/verifyToken', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -46,7 +46,7 @@ const Login: React.FC = () => {
       console.log('User data:', userData);
       setUserData(userData);
       setIsLoggedIn(true);
-      if(userData.role == "employee"){
+      if(userData.role){
         navigate("/employeeHome"); // will change based on the user's role
       }
     } else {

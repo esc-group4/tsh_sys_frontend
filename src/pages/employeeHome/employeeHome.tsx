@@ -7,7 +7,8 @@ import { useAuth } from '../../contexts/UserContext';
 const EmployeeHome: React.FC = () => {
   const { courses } = useCourses();
   let items = ["others","others2"]
-  const { userData  } = useAuth();
+  const { currentUser,userData  } = useAuth();
+  console.log(currentUser?.uid)
 
   // Define the order of statuses
   const statusOrder = ['Evaluation Required', 'Upcoming', 'Expired', 'Completed'];
