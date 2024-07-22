@@ -1,16 +1,41 @@
-import React from 'react';
+import React, { useState,useEffect }from 'react';
 import './employee.css';
 import CourseCard from '../../components/CourseCard/CourseCard';
 import { useCourses } from '../../contexts/CourseContext';
 import { useAuth } from '../../contexts/UserContext';
 
+interface Course {
+  id: number;
+  title: string;
+  deadline: string;
+  info: string;
+  location: string;
+  status: string;
+  countdown: string;
+  description: string;
+  trainer: string;
+}
+
 const EmployeeHome: React.FC = () => {
-  const { courses } = useCourses();
+  const [courses, setCourses] = useState<Course[]>([]);
   let items = ["others","others2"]
   const { currentUser,userData  } = useAuth();
   console.log(currentUser?.uid)
 
-  // Define the order of statuses
+  useEffect(() => {
+    const fetchCourses = async () => {
+      try {
+        const response = await fetch('http://localhost:3001/course/courses');
+        const data = await response.json();
+        setCourses(data);
+      } catch (error) {
+        console.error('Failed to fetch courses:', error);
+      }
+    };
+
+    fetchCourses();
+  }, []);
+
   const statusOrder = ['Evaluation Required', 'Upcoming', 'Expired', 'Completed'];
 
   // Custom sorting function
