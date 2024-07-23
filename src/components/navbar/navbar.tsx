@@ -1,12 +1,22 @@
-import React, { useState } from "react";
+import React from "react";
 import './navbar.css';
 import { useAuth } from "../../contexts/UserContext";
-import currentuserImage from "../../assets/profile.jpg"
+import currentuserImage from "../../assets/profile.jpeg";
+import { signOut } from "firebase/auth"; // Import signOut method from Firebase
+import { auth } from "../../config/firebase-config"; // Import your Firebase configuration
 
 const NavBar: React.FC = () => {
-    const [selected, setSelected] = useState(-1);
-    const { userData } = useAuth()
-    let navItems = ["others","others2"]
+    const { userData } = useAuth();
+
+    const handleSignOut = async () => {
+        try {
+            await signOut(auth);
+            // Redirect user to login page
+            window.location.href = "/";
+        } catch (error) {
+            console.error("Sign out error:", error);
+        }
+    };
 
     return (
         <nav className="navbar navbar-expand-md navbar-dark bg-dark shadow">
@@ -23,24 +33,8 @@ const NavBar: React.FC = () => {
                     >
                         <span className="navbar-toggler-icon" />
                     </button>
-                </div>
-                <div className="collapse navbar-collapse" id="navbarSupportedContent">
-                    <ul className="navbar-nav me-auto mb-2 mb-md-1">
-                        {navItems.map((item, index) => (
-                            <li
-                                key={item}
-                                className="nav-item"
-                                onClick={() => setSelected(index)}
-                            >
-                                <a
-                                    className={selected === index ? "nav-link active fw-bold" : "nav-link"}
-                                    href="#"
-                                >
-                                    {item}
-                                </a>
-                            </li>
-                        ))}
-                    </ul>
+                    {/* Sign Out Button */}
+                    <button className="btn btn-danger ms-2" onClick={handleSignOut}>Sign Out</button>
                 </div>
                 <div className="d-flex align-items-center">
                     <div className="text-end me-2">
@@ -58,6 +52,6 @@ const NavBar: React.FC = () => {
             </div>
         </nav>
     );
-}
+};
 
 export default NavBar;

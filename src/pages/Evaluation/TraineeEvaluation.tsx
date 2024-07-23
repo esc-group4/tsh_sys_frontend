@@ -15,9 +15,14 @@ const TraineeEvaluation: React.FC = () => {
     }        navigate('/completion');
     };
 
+    const handleBackClick = () => {
+        navigate(-1); // Navigate to the previous page
+    };
+
     return (
         <div className="evaluation-container">
             <h1>Trainee Evaluation</h1>
+            <a href="/employeeHome" className="back-button" onClick={handleBackClick}><i className="fas fa-arrow-left"></i> Back</a>
             <div className="scrollable-form">
                 <form>
                     <div className="question-group">

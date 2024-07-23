@@ -7,7 +7,7 @@ const Confirmation: React.FC = () => {
     const navigate = useNavigate();
 
     const handleReturnHomeClick = () => {
-        navigate('/home'); // Redirect to home page
+        navigate('/employeeHome'); // Redirect to home page
     };
 
     return (

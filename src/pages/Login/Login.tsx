@@ -8,10 +8,11 @@ import { useAuth } from "../../contexts/UserContext";
 const Login: React.FC = () => {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
-  const [isLoggedIn, setIsLoggedIn] = useState(false); // Add a state for login status
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [error, setError] = useState('');
-  const { currentUser, login, setUserData   } = useAuth();
+  const { currentUser, login, setUserData } = useAuth();
   const [loading, setLoading] = useState(false);
+  const [courses, setCourses] = useState([]); // State to store courses
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -19,10 +20,6 @@ const Login: React.FC = () => {
       navigate("/");
     }
   }, [currentUser, navigate]);
-
-
-
-
 
   const handleLogin = async(event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
@@ -37,7 +34,6 @@ const Login: React.FC = () => {
           'Authorization': `Bearer ${token}`
         },
       });
-      
   
       if (!response.ok) {
         throw new Error('Token verification failed');
@@ -46,7 +42,7 @@ const Login: React.FC = () => {
       console.log('User data:', userData);
       setUserData(userData);
       setIsLoggedIn(true);
-      if(userData.role == "employee"){
+      if(userData.dept == "employee"){
         navigate("/employeeHome"); // will change based on the user's role
       }
     } else {
