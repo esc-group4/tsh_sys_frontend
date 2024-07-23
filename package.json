@@ -38,13 +38,6 @@
       "react-app/jest"
     ]
   },
-  "jest": {
-    "collectCoverage": true,
-    "coverageReporters": [
-      "text",
-      "html"
-    ]
-  },
   "browserslist": {
     "production": [
       ">0.2%",
