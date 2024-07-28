@@ -1,3 +1,6 @@
+
+// here we will do some kind of validation, check empty, check regex
+
 interface ValidationResult {
     isValid: boolean;
     errors: {

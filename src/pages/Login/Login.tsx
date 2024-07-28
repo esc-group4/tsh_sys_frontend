@@ -70,14 +70,15 @@ const Login: React.FC = () => {
           <div className="form-group">
             <label htmlFor="username">Username:</label>
             <input
-            type="text"
-            id="username"
-            placeholder="Username"
-            value={username}
-            onChange={(e) => setUsername(e.target.value)}
-            required
-          />
-            {inputErrors.username && <p className="error-msg">{inputErrors.username}</p>}
+              type="text"
+              id="username"
+              placeholder="Username"
+              value={username}
+              onChange={(e) => setUsername(e.target.value)}
+              required
+              data-testid="username-input"
+            />
+            {inputErrors.username && <p className="error-msg" data-testid="username-error">{inputErrors.username}</p>}
           </div>
           <div className="form-group">
             <label htmlFor="password">Password:</label>
@@ -88,8 +89,9 @@ const Login: React.FC = () => {
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               required
+              data-testid="password-input"
             />
-            {inputErrors.password && <p className="error-msg">{inputErrors.password}</p>}
+            {inputErrors.password && <p className="error-msg" data-testid="password-error">{inputErrors.password}</p>}
           </div>
           <button type="submit" disabled={loading}>
             {loading ? 'Logging in...' : 'Login'}

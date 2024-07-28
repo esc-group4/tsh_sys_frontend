@@ -1,5 +1,7 @@
+// checks if validation works
+
 import React from 'react';
-import { render, fireEvent, screen, waitFor } from '@testing-library/react';
+import { render, fireEvent, screen, waitFor, act } from '@testing-library/react';
 import '@testing-library/jest-dom/extend-expect';
 import { BrowserRouter } from 'react-router-dom';
 import Login from './Login';
@@ -13,15 +15,40 @@ jest.mock('../../contexts/UserContext', () => ({
 
 const mockedUseAuth = useAuth as jest.MockedFunction<typeof useAuth>;
 
-const setup = () => {
-  return render(
-    <AuthProvider>
-      <BrowserRouter>
-        <Login />
-      </BrowserRouter>
-    </AuthProvider>
-  );
+const setup = async () => {
+  await act(async () => {
+    render(
+      <AuthProvider>
+        <BrowserRouter>
+          <Login />
+        </BrowserRouter>
+      </AuthProvider>
+    );
+  });
 };
+
+describe('Login Page Rendering', () => {
+  beforeEach(() => {
+    mockedUseAuth.mockReturnValue({
+      currentUser: null,
+      login: jest.fn().mockResolvedValue({ user: { getIdToken: () => Promise.resolve('mockToken') } }),
+      setUserData: jest.fn(),
+      userData: null,
+    });
+  });
+
+  test('renders login page with all elements', async () => {
+    await setup();
+
+    await waitFor(() => {
+      expect(screen.getByAltText(/logo/i)).toBeInTheDocument();
+      expect(screen.getByText(/training management system/i)).toBeInTheDocument();
+      expect(screen.getByLabelText(/username/i)).toBeInTheDocument();
+      expect(screen.getByLabelText(/password/i)).toBeInTheDocument();
+      expect(screen.getByRole('button', { name: /login/i })).toBeInTheDocument();
+    });
+  });
+});
 
 describe('Login Page Validation', () => {
   beforeEach(() => {
@@ -34,11 +61,12 @@ describe('Login Page Validation', () => {
   });
 
   test('Empty Email', async () => {
-    setup();
+    await setup();
 
-    fireEvent.change(screen.getByPlaceholderText(/username/i), { target: { value: '' } });
-    fireEvent.change(screen.getByPlaceholderText(/password/i), { target: { value: 'password1' } });
+    fireEvent.change(screen.getByTestId('username-input'), { target: { value: '' } });
+    fireEvent.change(screen.getByTestId('password-input'), { target: { value: 'password1' } });
     fireEvent.click(screen.getByRole('button', { name: /login/i }));
+
 
     await waitFor(() => {
       expect(screen.getByText(/username is required/i)).toBeInTheDocument();
@@ -46,11 +74,12 @@ describe('Login Page Validation', () => {
   });
 
   test('Empty Password', async () => {
-    setup();
+    await setup();
 
-    fireEvent.change(screen.getByPlaceholderText(/username/i), { target: { value: 'javertan@TSH.com' } });
-    fireEvent.change(screen.getByPlaceholderText(/password/i), { target: { value: '' } });
+    fireEvent.change(screen.getByTestId('username-input'), { target: { value: 'javertan@TSH.com' } });
+    fireEvent.change(screen.getByTestId('password-input'), { target: { value: '' } });
     fireEvent.click(screen.getByRole('button', { name: /login/i }));
+
 
     await waitFor(() => {
       expect(screen.getByText(/password is required/i)).toBeInTheDocument();
@@ -58,11 +87,13 @@ describe('Login Page Validation', () => {
   });
 
   test('Empty Email and Empty Password', async () => {
-    setup();
+    await setup();
 
-    fireEvent.change(screen.getByPlaceholderText(/username/i), { target: { value: '' } });
-    fireEvent.change(screen.getByPlaceholderText(/password/i), { target: { value: '' } });
+    fireEvent.change(screen.getByTestId('username-input'), { target: { value: '' } });
+    fireEvent.change(screen.getByTestId('password-input'), { target: { value: '' } });
     fireEvent.click(screen.getByRole('button', { name: /login/i }));
+
+
 
     await waitFor(() => {
       expect(screen.getByText(/username is required/i)).toBeInTheDocument();
@@ -71,10 +102,10 @@ describe('Login Page Validation', () => {
   });
 
   test('Invalid Email and Empty Password', async () => {
-    setup();
+    await setup();
 
-    fireEvent.change(screen.getByPlaceholderText(/username/i), { target: { value: 'javertan' } });
-    fireEvent.change(screen.getByPlaceholderText(/password/i), { target: { value: '' } });
+    fireEvent.change(screen.getByTestId('username-input'), { target: { value: 'javertan' } });
+    fireEvent.change(screen.getByTestId('password-input'), { target: { value: '' } });
     fireEvent.click(screen.getByRole('button', { name: /login/i }));
 
     await waitFor(() => {
@@ -84,11 +115,12 @@ describe('Login Page Validation', () => {
   });
 
   test('Valid Email and Password', async () => {
-    setup();
+    await setup();
 
-    fireEvent.change(screen.getByPlaceholderText(/username/i), { target: { value: 'javertan@TSH.com' } });
-    fireEvent.change(screen.getByPlaceholderText(/password/i), { target: { value: 'password1' } });
+    fireEvent.change(screen.getByTestId('username-input'), { target: { value: 'javertan@TSH.com' } });
+    fireEvent.change(screen.getByTestId('password-input'), { target: { value: 'password1' } });
     fireEvent.click(screen.getByRole('button', { name: /login/i }));
+
 
     await waitFor(() => {
       expect(mockedUseAuth().login).toHaveBeenCalledWith('javertan@TSH.com', 'password1');
