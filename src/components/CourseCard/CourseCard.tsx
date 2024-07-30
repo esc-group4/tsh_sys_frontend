@@ -1,5 +1,8 @@
-import React from 'react';
+import React, {useState, useEffect} from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useCourses } from '../../contexts/CourseContext';
+import { format, differenceInMilliseconds } from 'date-fns';
+import { toZonedTime } from 'date-fns-tz';
 import './CourseCard.css';
 
 interface CourseProps {
@@ -12,6 +15,8 @@ interface CourseProps {
   countdown: string;
   description: string;
   trainer: string;
+  name: string;
+  email: string;
 }
 
 const getStatusClass = (status: string) => {
@@ -27,9 +32,37 @@ const getStatusClass = (status: string) => {
     }
 };
 
-const CourseCard: React.FC<CourseProps> = ({ id, title, deadline, info, location, status, countdown, description, trainer }) => {
+const CourseCard: React.FC<CourseProps> = ({ id, title, deadline, info, location, status, countdown, description, trainer, name, email }) => {
 
   const navigate = useNavigate();
+  const { updateCourseStatus } = useCourses();
+
+  const [timeLeft, setTimeLeft] = useState({ days: 0, hours: 0, minutes: 0 });
+
+  useEffect(() => {
+    const calculateTimeLeft = () => {
+      const now = new Date();
+      const timeZone = 'Asia/Singapore';
+      const deadlineDate = toZonedTime(deadline, timeZone);
+      const difference = differenceInMilliseconds(deadlineDate, now);
+
+      if (difference > 0) {
+        const days = Math.floor(difference / (1000 * 60 * 60 * 24));
+        const hours = Math.floor((difference / (1000 * 60 * 60)) % 24);
+        const minutes = Math.floor((difference / (1000 * 60)) % 60);
+
+        setTimeLeft({ days, hours, minutes });
+      } else {
+        setTimeLeft({ days: 0, hours: 0, minutes: 0 });
+        updateCourseStatus(id, 'Expired');
+      }
+    };
+
+    calculateTimeLeft();
+    const timer = setInterval(calculateTimeLeft, 60000); // Update every minute
+
+    return () => clearInterval(timer);
+  }, [deadline]);
 
   const handleClick = () => {
     if (['Upcoming', 'Expired'].includes(status)) {
@@ -52,11 +85,11 @@ const CourseCard: React.FC<CourseProps> = ({ id, title, deadline, info, location
 
           {showCountdown && countdown && (
             <div className="countdown-container">
-              <div className="time" id="countdown">{countdown}</div>
+              <div className="time" id="countdown">{`${String(timeLeft.days).padStart(2, '0')} : ${String(timeLeft.hours).padStart(2, '0')} : ${String(timeLeft.minutes).padStart(2, '0')}`}</div>
               <div className="time-labels">
                 <div className="label">Days</div>
                 <div className="label">Hrs</div>
-                <div className="label">Min</div>
+                <div className="label">Mins</div>
               </div>
             </div>
           )}
@@ -96,3 +129,4 @@ const CourseCard: React.FC<CourseProps> = ({ id, title, deadline, info, location
 };
 
 export default CourseCard;
+

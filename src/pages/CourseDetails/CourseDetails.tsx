@@ -1,5 +1,5 @@
 import React from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
+import { Navigate, useParams, useNavigate } from 'react-router-dom';
 import { useCourses } from '../../contexts/CourseContext';
 import './CourseDetails.css';
 
@@ -9,6 +9,10 @@ const CourseDetails: React.FC = () => {
     const navigate = useNavigate();
     
     const course = courses.find(course => course.id === parseInt(id || ''));
+
+    const handleBackClick = () => {
+        navigate('/employeeHome');
+    };
 
     if (!course) {
         return <div>Course not found.</div>;
@@ -22,7 +26,7 @@ const CourseDetails: React.FC = () => {
 
     return (
         <div className="course-details-container">
-            <a href="/home" className="back-button"><i className="fas fa-arrow-left"></i> Back</a>
+            <a href="/employeeHome" className="back-button" onClick={handleBackClick}><i className="fas fa-arrow-left"></i> Back</a>
             <div className="course-header">
                 <h1 className="course-title">{course.title}</h1>
                 <div className={`status2 ${getStatusClass2(course.status)}`}>{course.status}</div>

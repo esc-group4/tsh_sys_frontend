@@ -8,7 +8,6 @@ import Attendance from './pages/Attendance/Attendance';
 import AttendanceConfirmation from './pages/AttendanceConfirmation/AttendanceConfirmation';
 import CourseCompleted from './pages/CourseCompleted/CourseCompleted';
 import { CourseProvider } from './contexts/CourseContext';
-import currimage from "./assets/profile.jpg"
 import Layout from "./Layout"
 import './config/firebase-config'
 import { useAuth } from './contexts/UserContext';

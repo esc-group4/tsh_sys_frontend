@@ -1,12 +1,12 @@
 import React from 'react';
-import { useNavigate } from 'react-router-dom';
+import { Navigate, useParams, useNavigate } from 'react-router-dom';
 import './CourseCompleted.css';
 
 const CourseCompleted: React.FC = () => {
     const navigate = useNavigate();
 
     const handleHomeClick = () => {
-        navigate('/home');
+        navigate('/employeeHome');
     };
 
     return (

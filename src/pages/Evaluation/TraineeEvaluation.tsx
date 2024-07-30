@@ -11,13 +11,18 @@ const TraineeEvaluation: React.FC = () => {
     const handleSubmit = () => {
       if (id) {
         updateCourseStatus(parseInt(id), 'Completed');
-        navigate('/attendance-confirmation');
-    }        navigate('/completion');
+        navigate('/completion');
+      }
+    };
+
+    const handleBackClick = () => {
+        navigate(-1); // Navigate to the previous page
     };
 
     return (
         <div className="evaluation-container">
             <h1>Trainee Evaluation</h1>
+            <a href="/employeeHome" className="back-button" onClick={handleBackClick}><i className="fas fa-arrow-left"></i> Back</a>
             <div className="scrollable-form">
                 <form>
                     <div className="question-group">
