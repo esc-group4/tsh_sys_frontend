@@ -5,19 +5,30 @@ import QrScanner from 'react-qr-scanner'
 import './Attendance.css'
 
 const Attendance: React.FC = () => {
-  const { id } = useParams<{ id: string }>()
-  const { updateCourseStatus } = useCourses()
+  const { id, staffid } = useParams<{ id: string; staffid: string }>()
   const navigate = useNavigate()
   const [delay, setDelay] = useState(300)
 
-  const handleScan = (data: any) => {
-    if (data) {
-      console.log('Scanned Data:', data.text) // assuming data.text contains the URL
-      // Redirect to the URL scanned from the QR code
-      window.open(data.text, '_blank')
-      if (id) {
-        updateCourseStatus(parseInt(id), 'Completed')
+  const handleScan = async (data: any) => {
+    if (data && id) {
+      console.log('Scanned Data:', data.text)
+      try {
+        const response = await fetch(
+          `http://localhost:8080/attendance/${data.text}/${staffid}`,
+          {
+            method: 'PUT',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ request_id: data.text, staff_id: staffid }),
+          }
+        )
+        if (!response.ok) {
+          throw new Error('Network response was not ok')
+        }
         navigate('/attendance-confirmation')
+      } catch (error) {
+        console.error('Failed to send attendance data:', error)
       }
     }
   }

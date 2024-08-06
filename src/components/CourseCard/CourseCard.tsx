@@ -1,22 +1,23 @@
 import React, { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { useCourses } from '../../contexts/CourseContext'
 import { format, differenceInMilliseconds } from 'date-fns'
 import { toZonedTime } from 'date-fns-tz'
 import './CourseCard.css'
 
 interface CourseProps {
-  id: number
-  title: string
-  deadline: string
-  info: string
-  location: string
+  grade: string | null
+  attendance: number
+  type: string
+  reasons: string | null
+  completedDateTime: string | null
+  startDate: string
+  endDate: string
+  course_name: string
+  providerName: string
+  skill_name: string
+  course_location: string
+  course_description: string
   status: string
-  countdown: string
-  description: string
-  trainer: string
-  name: string
-  email: string
 }
 
 const getStatusClass = (status: string) => {
@@ -27,32 +28,34 @@ const getStatusClass = (status: string) => {
       return 'status-completed'
     case 'Expired':
       return 'status-expired'
+    default:
+      return ''
   }
 }
 
 const CourseCard: React.FC<CourseProps> = ({
-  id,
-  title,
-  deadline,
-  info,
-  location,
+  grade,
+  attendance,
+  type,
+  reasons,
+  completedDateTime,
+  startDate,
+  endDate,
+  course_name,
+  providerName,
+  skill_name,
+  course_location,
+  course_description,
   status,
-  countdown,
-  description,
-  trainer,
-  name,
-  email,
 }) => {
   const navigate = useNavigate()
-  const { updateCourseStatus } = useCourses()
-
   const [timeLeft, setTimeLeft] = useState({ days: 0, hours: 0, minutes: 0 })
 
   useEffect(() => {
     const calculateTimeLeft = () => {
       const now = new Date()
       const timeZone = 'Asia/Singapore'
-      const deadlineDate = toZonedTime(deadline, timeZone)
+      const deadlineDate = toZonedTime(endDate, timeZone)
       const difference = differenceInMilliseconds(deadlineDate, now)
 
       if (difference > 0) {
@@ -63,7 +66,6 @@ const CourseCard: React.FC<CourseProps> = ({
         setTimeLeft({ days, hours, minutes })
       } else {
         setTimeLeft({ days: 0, hours: 0, minutes: 0 })
-        updateCourseStatus(id, 'Expired')
       }
     }
 
@@ -71,11 +73,11 @@ const CourseCard: React.FC<CourseProps> = ({
     const timer = setInterval(calculateTimeLeft, 60000) // Update every minute
 
     return () => clearInterval(timer)
-  }, [deadline])
+  }, [endDate])
 
   const handleClick = () => {
     if (['Upcoming', 'Expired'].includes(status)) {
-      navigate(`/course/${id}`)
+      navigate(`/course/${course_name}`)
     }
     // No action for 'Completed'
   }
@@ -83,6 +85,8 @@ const CourseCard: React.FC<CourseProps> = ({
   const showCountdown = !['Completed', 'Expired'].includes(status)
   const showWarning = !['Completed', 'Upcoming'].includes(status)
   const showExpand = !['Completed'].includes(status)
+
+  const formattedEndDate = format(new Date(endDate), 'MMMM dd, yyyy')
 
   return (
     <a
@@ -95,7 +99,7 @@ const CourseCard: React.FC<CourseProps> = ({
     >
       <div className="event-box">
         <div className="left-column">
-          {showCountdown && countdown && (
+          {showCountdown && (
             <div className="countdown-container">
               <div className="time" id="countdown">{`${String(
                 timeLeft.days
@@ -122,26 +126,33 @@ const CourseCard: React.FC<CourseProps> = ({
 
         <div className="right-column">
           <div className="info-item-header">
-            <span>{title}</span>
+            <span>{course_name}</span>
             {showExpand && <i className="fas fa-chevron-right"></i>}
           </div>
 
           <div className="info-item">
             <i className="fas fa-calendar-alt"></i>
             <div id="event-date">
-              <span>{deadline}</span>
+              <span>{formattedEndDate}</span>
             </div>
           </div>
 
           <div className="info-item">
             <i className="fas fa-info-circle"></i>
-            <span>{info}</span>
+            <span>{skill_name}</span>
           </div>
 
           <div className="info-item">
             <i className="fas fa-map-marker-alt"></i>
-            <span>{location}</span>
+            <span>{course_location}</span>
           </div>
+
+          {grade && (
+            <div className="info-item">
+              <i className="fas fa-star"></i>
+              <span>Grade: {grade}</span>
+            </div>
+          )}
         </div>
       </div>
     </a>

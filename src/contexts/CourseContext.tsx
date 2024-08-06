@@ -1,92 +1,74 @@
-import React, { createContext, useContext, useState, useEffect } from 'react';
-import { useAuth } from './UserContext';
+import React, { createContext, useContext, useState, useEffect } from 'react'
+import { useAuth } from './UserContext'
 
 type Course = {
-  id: number;
-  title: string;
-  deadline: string;
-  info: string;
-  location: string;
-  status: string;
-  countdown: string;
-  description: string;
-  trainer: string;
-  email: string;
-  name: string;
-};
+  grade: string | null
+  attendance: number
+  type: string
+  reasons: string | null
+  completedDateTime: string | null
+  startDate: string
+  endDate: string
+  course_name: string
+  providerName: string
+  skill_name: string
+  course_location: string
+  course_description: string
+  status: string
+}
 
 type CourseContextProps = {
-  courses: Course[];
-  updateCourseStatus: (id: number, status: string) => void;
-};
+  courses: Course[]
+  loading: boolean
+}
 
-const CourseContext = createContext<CourseContextProps | undefined>(undefined);
+const CourseContext = createContext<CourseContextProps | undefined>(undefined)
 
-const CourseProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const [courses, setCourses] = useState<Course[]>([]);
-  const [loading, setLoading] = useState(true);
-  const { currentUser, userData } = useAuth(); // Get the current user and user data from the Auth context
+const CourseProvider: React.FC<{ children: React.ReactNode }> = ({
+  children,
+}) => {
+  const [courses, setCourses] = useState<Course[]>([])
+  const [loading, setLoading] = useState(true)
+  const { userData } = useAuth()
+  const staffId = userData?.staff_id // Access staff_id from userData
 
-  // Fetch courses from backend API based on user email
   useEffect(() => {
-    const fetchCourses = async () => {
-      if (!userData || !userData.email) return;
-
-      try {
-        const response = await fetch(`http://localhost:3001/courses/${userData.email}`);
-        if (!response.ok) {
-          throw new Error('Network response was not ok');
+    if (staffId) {
+      const fetchCourses = async () => {
+        try {
+          const response = await fetch(
+            `http://localhost:8080/course/staff/${staffId}`
+          )
+          if (!response.ok) {
+            throw new Error('Network response was not ok')
+          }
+          const data: Course[] = await response.json()
+          console.log('Courses:', data)
+          setCourses(data)
+        } catch (error) {
+          console.error('Error fetching courses:', error)
+        } finally {
+          setLoading(false)
         }
-        const data: Course[] = await response.json();
-        setCourses(data);
-      } catch (error) {
-        console.error('Error fetching courses:', error);
-      } finally {
-        setLoading(false);
       }
-    };
 
-    fetchCourses();
-  }, [userData]);
-
-  const updateCourseStatus = async (id: number, status: string) => {
-    try {
-      const response = await fetch(`http://localhost:3001/courses/${id}/status`, {
-        method: 'PUT',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ status }),
-      });
-      if (!response.ok) {
-        throw new Error('Network response was not ok');
-      }
-      const updatedCourse = await response.json();
-      setCourses(prevCourses =>
-        prevCourses.map(course =>
-          course.id === id ? updatedCourse : course
-        )
-      );
-    } catch (error) {
-      console.error('Error updating course status:', error);
+      fetchCourses()
     }
-  };
+  }, [staffId])
 
   return (
-    <CourseContext.Provider value={{ courses, updateCourseStatus }}>
+    <CourseContext.Provider value={{ courses, loading }}>
       {children}
     </CourseContext.Provider>
-  );
-};
+  )
+}
 
 const useCourses = (): CourseContextProps => {
-  const context = useContext(CourseContext);
+  const context = useContext(CourseContext)
   if (!context) {
-    throw new Error('useCourses must be used within a CourseProvider');
+    throw new Error('useCourses must be used within a CourseProvider')
   }
-  return context;
-};
+  return context
+}
 
-
-
-export { CourseProvider, useCourses };
+export { CourseProvider, useCourses }

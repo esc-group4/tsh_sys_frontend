@@ -2,8 +2,8 @@ import React from 'react'
 import './navbar.css'
 import { useAuth } from '../../contexts/UserContext'
 import currentuserImage from '../../assets/profile.jpeg'
-import { signOut } from 'firebase/auth' // Import signOut method from Firebase
-import { auth } from '../../config/firebase-config' // Import your Firebase configuration
+import { signOut } from 'firebase/auth'
+import { auth } from '../../config/firebase-config'
 
 const NavBar: React.FC = () => {
   const { userData } = useAuth()
@@ -40,8 +40,12 @@ const NavBar: React.FC = () => {
         </div>
         <div className="d-flex align-items-center">
           <div className="text-end me-2">
-            <p className="curruserName mb-0">{userData?.name}</p>
-            <p className="curruserRole mb-0">{userData?.role}</p>
+            <p className="curruserName mb-0">{userData?.staff_name}</p>
+            <p className="curruserRole">
+              {userData?.designation_id === 1
+                ? 'Employee'
+                : userData?.staff_name}
+            </p>
           </div>
           <img
             src={currentuserImage}
