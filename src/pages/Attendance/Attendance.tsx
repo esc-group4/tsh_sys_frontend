@@ -5,24 +5,31 @@ import QrScanner from 'react-qr-scanner'
 import './Attendance.css'
 
 const Attendance: React.FC = () => {
-  const { id } = useParams<{ id: string }>()
-  const { updateCourseStatus } = useCourses()
+  const { id, staffid } = useParams<{ id: string; staffid: string }>()
   const navigate = useNavigate()
   const [delay, setDelay] = useState(300)
 
-  const handleDoneClick = () => {
-    if (id) {
-      updateCourseStatus(parseInt(id), 'Completed')
-      navigate('/attendance-confirmation')
-    }
-  }
-
-  const handleScan = (data: any) => {
-    if (data) {
-      // Handle the scanned data here
-      console.log('Scanned Attendance Data:', data)
-      // You can also mark the attendance here and navigate to the confirmation page
-      handleDoneClick()
+  const handleScan = async (data: any) => {
+    if (data && id) {
+      console.log('Scanned Data:', data.text)
+      try {
+        const response = await fetch(
+          `http://localhost:8080/attendance/${data.text}/${staffid}`,
+          {
+            method: 'PUT',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ request_id: data.text, staff_id: staffid }),
+          }
+        )
+        if (!response.ok) {
+          throw new Error('Network response was not ok')
+        }
+        navigate('/attendance-confirmation')
+      } catch (error) {
+        console.error('Failed to send attendance data:', error)
+      }
     }
   }
 
@@ -44,12 +51,7 @@ const Attendance: React.FC = () => {
       <div className="instructions">
         <span>1. Point your camera at the QR code.</span>
         <span>2. The QR code will be scanned automatically.</span>
-        <span>3. Mark your attendance.</span>
-      </div>
-      <div className="attendance-actions">
-        <button className="done-btn" onClick={handleDoneClick}>
-          Done
-        </button>
+        <span>3. You will be redirected to the URL.</span>
       </div>
     </div>
   )

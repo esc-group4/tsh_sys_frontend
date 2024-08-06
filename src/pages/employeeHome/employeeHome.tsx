@@ -10,7 +10,6 @@ const EmployeeHome: React.FC = () => {
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
 
-  // Define the order of statuses
   const statusOrder = [
     'Evaluation Required',
     'Upcoming',
@@ -18,45 +17,21 @@ const EmployeeHome: React.FC = () => {
     'Completed',
   ]
 
-  // Custom sorting function
   const sortedCourses = [...courses].sort((a, b) => {
     return statusOrder.indexOf(a.status) - statusOrder.indexOf(b.status)
   })
 
-  // Count the number of pending trainings and evaluations
   const pendingTrainingCount = sortedCourses.filter(
     (course) => course.status === 'Upcoming'
   ).length
-  const pendingEvaluationCount = sortedCourses.filter(
-    (course) => course.status === 'Evaluation Required'
-  ).length
 
-  // Fetch courses from backend API based on user email
   useEffect(() => {
-    const fetchCourses = async () => {
-      if (!userData || !userData.email) {
-        setError('User data or email not available')
-        setLoading(false)
-        return
-      }
-
-      try {
-        const response = await fetch(
-          `http://localhost:3001/courses/${userData.email}`
-        )
-        if (!response.ok) {
-          throw new Error('Network response was not ok')
-        }
-        const data = await response.json()
-      } catch (error) {
-        console.error('Error fetching courses:', error)
-        setError('Failed to fetch courses')
-      } finally {
-        setLoading(false)
-      }
+    if (!userData) {
+      setError('User data not available')
+      setLoading(false)
+    } else {
+      setLoading(false)
     }
-
-    fetchCourses()
   }, [userData])
 
   if (loading) return <p>Loading...</p>
@@ -65,7 +40,9 @@ const EmployeeHome: React.FC = () => {
   return (
     <div className="home-page">
       <div className="header-info">
-        <p className="welcome-message">Welcome to your training dashboard!</p>
+        <p className="welcome-message">
+          Welcome to your training dashboard, {userData?.staff_name}!
+        </p>
         <div className="status-indicators">
           <div className="status-box pending">
             <div className="status-label">Upcoming Training:</div>
@@ -79,18 +56,20 @@ const EmployeeHome: React.FC = () => {
         {sortedCourses.length > 0 ? (
           sortedCourses.map((course) => (
             <CourseCard
-              id={course.id}
-              key={course.id}
-              title={course.title}
-              deadline={course.deadline}
-              info={course.info}
-              location={course.location}
+              key={course.course_name}
+              grade={course.grade}
+              attendance={course.attendance}
+              type={course.type}
+              reasons={course.reasons}
+              completedDateTime={course.completedDateTime}
+              startDate={course.startDate}
+              endDate={course.endDate}
+              course_name={course.course_name}
+              providerName={course.providerName}
+              skill_name={course.skill_name}
+              course_location={course.course_location}
+              course_description={course.course_description}
               status={course.status}
-              countdown={course.countdown}
-              description={course.description}
-              trainer={course.trainer}
-              email={course.email}
-              name={course.name}
             />
           ))
         ) : (

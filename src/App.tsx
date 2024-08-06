@@ -19,8 +19,14 @@ import { useAuth } from './contexts/UserContext'
 function App() {
   const { userData } = useAuth()
 
+  if (!userData) {
+    return <Login />
+  }
+
   return (
     <CourseProvider>
+      {' '}
+      {}
       <Router>
         <Routes>
           <Route path="/" element={<Login />} />
@@ -29,7 +35,7 @@ function App() {
             <Route path="/hodhome" element={<EmployeeHome />} />
             <Route path="/hrhome" element={<EmployeeHome />} />
             <Route path="/course/:id" element={<CourseDetails />} />
-            <Route path="/attendance/:id" element={<Attendance />} />
+            <Route path="/attendance/:id/:staffid" element={<Attendance />} />
             <Route
               path="/attendance-confirmation"
               element={<AttendanceConfirmation />}
