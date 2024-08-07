@@ -256,6 +256,7 @@ const HrView: React.FC = () => {
     };
 
     const handleConfirmReschedule = (date: string) => {
+      // TODO: Implement Reschedule Here
       console.log('Rescheduling training for:', date);
       setSuccessMessage('Rescheduling Successful');
       setShowSuccessPopup(true);

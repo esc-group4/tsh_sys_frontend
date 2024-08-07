@@ -92,12 +92,12 @@ const HodHome: React.FC = () => {
           }
           const trainings = await trainingResponse.json();
 
-          const completedTrainings = trainings.filter((training: any) => training.completedDateTime !== null);
+          const completedTrainings = trainings.filter((training: any) => training.grade !== null);
           const trainingData = completedTrainings.length > 0
             ? completedTrainings.map((training: any, trainIndex: number) => ({
                 key: (trainIndex + 1).toString(),
                 trainingNeed: training.course_name,
-                date: new Date(training.completedDateTime).toLocaleDateString(),
+                date: training.completedDateTime? new Date(training.completedDateTime).toLocaleDateString() : "No recorded date",
               }))
             : [{
                 key: '1',

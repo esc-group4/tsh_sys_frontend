@@ -8,7 +8,7 @@ export interface DataType {
   type: string;
   date: string;
   personnel: number;
-  status?: 'Completed' | 'Pending' | 'Approved'; /* ? for optional */
+  status?: 'Completed' | 'Pending' | 'Approved' | 'Rejected'; /* ? for optional */
   department?: string;
 }
 
