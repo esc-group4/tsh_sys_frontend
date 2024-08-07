@@ -1,3 +1,4 @@
+// hodHome.tsx
 import React, { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import SimpleTable, { DataType } from './../../components/Table/Table';
@@ -21,6 +22,7 @@ const HodHome: React.FC = () => {
   useEffect(() => {
     if (!department) return;
 
+    // TODO: Get "ApprovedTrainingRequests"
     const fetchTrainingRequests = async () => {
       try {
         const response = await fetch(`http://localhost:8080/hod/trainingrequest/${department}`);
@@ -28,7 +30,8 @@ const HodHome: React.FC = () => {
           throw new Error('Network response was not ok');
         }
         const data = await response.json();
-
+        
+        // Filter the data based on status
         const approved = data
           .filter((item: any) => item.status === 'Approved')
           .map((item: any) => ({
@@ -52,10 +55,11 @@ const HodHome: React.FC = () => {
         setApprovedData(approved);
         setPendingData(pending);
       } catch (error) {
-        console.error('Error fetching training requests: ', error);
+        console.error('Error fetching courses: ', error);
       }
     };
 
+    // TODO: Get all employees within department and all their attributes
     const fetchEmployeesTrainingData = async () => {
       try {
         const response = await fetch(`http://localhost:8080/staff/${department}/all`);
@@ -64,49 +68,41 @@ const HodHome: React.FC = () => {
         }
         const employees = await response.json();
 
-        const employeeDataPromises = employees.map((employee: any, empIndex: number) =>
-          new Promise(async (resolve) => {
-            try {
-              const trainingResponse = await fetch(`http://localhost:8080/course/staff/${employee.staff_id}`);
-              if (!trainingResponse.ok) {
-                throw new Error(`Network response was not ok for staff ${employee.staff_id}`);
-              }
-              const trainings = await trainingResponse.json();
+        const employeeTrainingPromises = employees.map(async (employee: any, empIndex: number) => {
+          const trainingResponse = await fetch(`http://localhost:8080/course/staff/${employee.staff_id}`);
+          if (!trainingResponse.ok) {
+            throw new Error('Network response was not ok');
+          }
+          const trainings = await trainingResponse.json();
 
-              const completedTrainings = trainings.filter((training: any) => training.completedDateTime !== null);
-              const employeeData = {
-                key: (empIndex + 1).toString(),
-                employee: employee.staff_name,
-                id: employee.staff_id.toString(),
-                division: "null", // Unsure where to get this
-                designation: employee.position,
-                trainings: completedTrainings.map((training: any, trainIndex: number) => ({
-                  key: (trainIndex + 1).toString(),
-                  trainingNeed: training.course_name,
-                  date: new Date(training.startDate).toLocaleDateString(),
-                })),
-              };
+          const completedTrainings = trainings.filter((training: any) => training.completedDateTime !== null);
+          return {
+            key: (empIndex + 1).toString(),
+            employee: employee.staff_name,
+            id: employee.staff_id.toString(),
+            division: "null", // unsure where to get this
+            designation: "null", // this is gettable
+            trainings: completedTrainings.map((training: any, trainIndex: number) => ({
+              key: (trainIndex + 1).toString(),
+              trainingNeed: training.course_name,
+              date: new Date(training.startDate).toLocaleDateString(),
+            })),
+          };
+        });
 
-              // Delay for 200ms before resolving the promise
-              setTimeout(() => resolve(employeeData), 200);
-            } catch (error) {
-              console.error(`Error fetching trainings for staff ${employee.staff_id}: `, error);
-              resolve(null); // Resolve with null in case of error
-            }
-          })
-        );
-
-        const resolvedEmployeeData = await Promise.all(employeeDataPromises);
-        setEmployeeData(resolvedEmployeeData.filter((emp) => emp !== null)); // Filter out any null values
+        const resolvedEmployeeData = await Promise.all(employeeTrainingPromises);
+        setEmployeeData(resolvedEmployeeData);
       } catch (error) {
-        console.error('Error fetching employees training data: ', error);
+        console.error('Error fetching courses: ', error);
       }
     };
-    
+
     fetchTrainingRequests();
     fetchEmployeesTrainingData();
   }, [department]);
 
+  // Page Padding
+  // Flexibility & Separation of Concerns
   const pageStyle: React.CSSProperties = {
     padding: '20px',
   };
@@ -119,7 +115,7 @@ const HodHome: React.FC = () => {
     marginBottom: '20px',
   };
 
-  const headerStyle: React.CSSProperties = {
+  const headerStyle: React.CSSProperties = { 
     fontSize: '16px',
     margin: 0,
   };
@@ -144,18 +140,18 @@ const HodHome: React.FC = () => {
     borderRadius: '8px',
     padding: '10px 20px',
     marginBottom: '20px',
-    maxWidth: '100%',
-    display: 'inline-block',
+    maxWidth: '100%', // Allow the container to adjust based on content
+    display: 'inline-block', // Adjust width based on content
   };
 
   const approvedHeadingStyle: React.CSSProperties = {
     ...headingContainerStyle,
-    backgroundColor: '#d1e7dd',
+    backgroundColor: '#d1e7dd', // Light green
   };
 
   const pendingHeadingStyle: React.CSSProperties = {
     ...headingContainerStyle,
-    backgroundColor: '#f8d7da',
+    backgroundColor: '#f8d7da', // Light red
   };
   
   return (
