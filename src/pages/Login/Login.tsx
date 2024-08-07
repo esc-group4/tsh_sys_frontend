@@ -24,9 +24,10 @@ const Login: React.FC = () => {
     try {
       const userCredential = await login(username, password)
       if (userCredential) {
+        console.log('User credential:', userCredential)
         setUserData(userCredential)
         setIsLoggedIn(true)
-        if (userCredential.designation_id === 1) {
+        if (userCredential.staff_id === 1) {
           navigate('/employeeHome')
         }
       } else {
