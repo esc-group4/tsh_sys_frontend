@@ -7,6 +7,8 @@ import {
 } from 'react-router-dom'
 import EmployeeHome from './pages/employeeHome/employeeHome'
 import Login from './pages/Login/Login'
+import HodHome from './pages/hodHome/hodHome'
+import HRHome from './pages/hrHome/hrHome'
 import CourseDetails from './pages/CourseDetails/CourseDetails'
 import Attendance from './pages/Attendance/Attendance'
 import AttendanceConfirmation from './pages/AttendanceConfirmation/AttendanceConfirmation'
@@ -19,30 +21,28 @@ import { useAuth } from './contexts/UserContext'
 function App() {
   const { userData } = useAuth()
 
-  if (!userData) {
-    return <Login />
-  }
-
   return (
     <CourseProvider>
-      {' '}
-      {}
       <Router>
-        <Routes>
-          <Route path="/" element={<Login />} />
-          <Route element={<Layout />}>
-            <Route path="/employeehome" element={<EmployeeHome />} />
-            <Route path="/hodhome" element={<EmployeeHome />} />
-            <Route path="/hrhome" element={<EmployeeHome />} />
-            <Route path="/course/:id" element={<CourseDetails />} />
-            <Route path="/attendance/:id/:staffid" element={<Attendance />} />
-            <Route
-              path="/attendance-confirmation"
-              element={<AttendanceConfirmation />}
-            />
-            <Route path="/completion" element={<CourseCompleted />} />
-          </Route>
-        </Routes>
+        {!userData ? (
+          <Login />
+        ) : (
+          <Routes>
+            <Route path="/" element={<Login />} />
+            <Route element={<Layout />}>
+              <Route path="/employeehome" element={<EmployeeHome />} />
+              <Route path="/hodhome" element={<HodHome />} />
+              <Route path="/hrhome" element={<HRHome />} />
+              <Route path="/course/:id" element={<CourseDetails />} />
+              <Route path="/attendance/:id/:staffid" element={<Attendance />} />
+              <Route
+                path="/attendance-confirmation"
+                element={<AttendanceConfirmation />}
+              />
+              <Route path="/completion" element={<CourseCompleted />} />
+            </Route>
+          </Routes>
+        )}
       </Router>
     </CourseProvider>
   )
