@@ -11,6 +11,7 @@ import HodHome from './pages/hodHome/hodHome'
 import HodSchedule from './pages/hodHome/hodSchedule'
 import HodView from './pages/hodHome/hodView'
 import HRHome from './pages/hrHome/hrHome'
+import HRView from './pages/hrHome/hrView'
 import CourseDetails from './pages/CourseDetails/CourseDetails'
 import Attendance from './pages/Attendance/Attendance'
 import AttendanceConfirmation from './pages/AttendanceConfirmation/AttendanceConfirmation'
@@ -37,6 +38,7 @@ function App() {
               <Route path="/hodSchedule" element={<HodSchedule />} />
               <Route path="/hodView" element={<HodView />} />
               <Route path="/hrhome" element={<HRHome />} />
+              <Route path="/hrView" element={<HRView />} />
               <Route path="/course/:id" element={<CourseDetails />} />
               <Route path="/attendance/:id/:staffid" element={<Attendance />} />
               <Route

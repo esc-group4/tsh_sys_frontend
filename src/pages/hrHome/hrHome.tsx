@@ -1,122 +1,79 @@
 // hodHome.tsx
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import SimpleTable, { DataType } from './../../components/Table/Table';
 import MasterlistTable, { EmployeeType } from './../../components/Table/masterlistTable';
 
-const HodHome: React.FC = () => {
+const HrHome: React.FC = () => {
   const [activeTab, setActiveTab] = useState('scheduledTrainings');
-/*
-  const trainingData: DataType[] = [
-    {
-      key: '1',
-      trainingNeed: 'Microsoft Office',
-      type: 'External',
-      date: '20/07/2024',
-      personnel: 17,
-      department: 'Manufacturing',
-      status: 'Completed',
-    },
-    {
-      key: '2',
-      trainingNeed: 'ERP',
-      type: 'Internal',
-      date: '31/07/2024',
-      personnel: 10,
-      department: 'Sales',
-      status: 'Pending',
-    },
-    {
-      key: '3',
-      trainingNeed: 'Product Handling',
-      type: 'Internal',
-      date: '02/08/2024',
-      personnel: 13,
-      department: 'Engineer',
-      status: 'Approved',
-    },
-    {
-      key: '4',
-      trainingNeed: 'Quality Awareness',
-      type: 'External',
-      date: '21/11/2024',
-      personnel: 21,
-      department: 'Engineer',
-      status: 'Pending',
-    },
-    {
-      key: '5',
-      trainingNeed: 'Tools (Jig Fixtures)',
-      type: 'Internal',
-      date: '29/11/2024',
-      personnel: 19,
-      department: 'Engineer',
-      status: 'Approved',
-    },
-    {
-      key: '6',
-      trainingNeed: 'Hand Tools (Pneumatic)',
-      type: 'Internal',
-      date: '12/12/2024',
-      personnel: 23,
-      department: 'Manufacturing',
-      status: 'Completed',
-    },
-    {
-      key: '7',
-      trainingNeed: 'Quality Awareness',
-      type: 'External',
-      date: '21/12/2024',
-      personnel: 2,
-      department: 'Sales',
-      status: 'Pending',
-    },
-    {
-      key: '8',
-      trainingNeed: 'Hammer',
-      type: 'Internal',
-      date: '29/11/2024',
-      personnel: 19,
-      department: 'Manufacturing',
-      status: 'Approved',
-    },
-    {
-      key: '9',
-      trainingNeed: 'Hand Tools (Hydraulic)',
-      type: 'Internal',
-      date: '12/12/2024',
-      personnel: 23,
-      department: 'Engineer',
-      status: 'Completed',
-    },
-  ];
-*/
-  const employeeData: EmployeeType[] = [
-    { key: '1', employee: 'Khoo Yong Lee', id: 'TSH113759', division: 'Production', designation: 'MES Planner', department: 'Manufacturing', trainings: [
-      { key: '1', trainingNeed: '5S Training', date: '09/09/2024' },
-      { key: '2', trainingNeed: 'Safety', date: '13/10/2024' },
-      { key: '3', trainingNeed: 'Kaizen', date: '19/11/2024' },
-    ]},
-    { key: '2', employee: 'Alina Tan', id: 'TSH109962', division: 'Production', designation: 'Assistant', department: 'Manufacturing', trainings: [
-      { key: '1', trainingNeed: 'Counterfeit', date: '09/09/2024' },
-      { key: '2', trainingNeed: 'Safety', date: '13/10/2024' },
-      { key: '3', trainingNeed: 'CI & IP', date: '19/11/2024' },
-    ]},
-    { key: '3', employee: 'Ernest Wong', id: 'TSH108972', division: 'Production', designation: 'Leader', department: 'Manufacturing', trainings: [
-      { key: '1', trainingNeed: '5S Training', date: '09/09/2024' },
-      { key: '2', trainingNeed: 'Tools', date: '13/10/2024' },
-      { key: '3', trainingNeed: 'Kaizen', date: '19/11/2024' },
-    ]},
-    { key: '4', employee: 'Fery James', id: 'TSH109698', division: 'Production', designation: 'Material Lead', department: 'Engineer', trainings: [
-      { key: '1', trainingNeed: '5S Training', date: '09/09/2024' },
-      { key: '2', trainingNeed: 'Safety', date: '13/10/2024' },
-      { key: '3', trainingNeed: 'Quality Control', date: '19/11/2024' },
-    ]},
-    { key: '5', employee: 'Alina Tan', id: 'TSH109962', division: 'Production', designation: 'Assistant', department: 'Sales', trainings: [
-      { key: '1', trainingNeed: 'Counterfeit', date: '09/09/2024' },
-      { key: '2', trainingNeed: 'Safety', date: '13/10/2024' },
-      { key: '3', trainingNeed: 'CI & IP', date: '19/11/2024' },
-    ]},
-  ];
+  const [trainingData, setTrainingData] = useState<DataType[]>([]);
+  const [employeeData, setEmployeeData] = useState<EmployeeType[]>([]);
+
+  useEffect(() => {
+    const fetchTrainingRequests = async () => {
+      try {
+        const response = await fetch(`http://localhost:8080/hr/trainingrequest/all`);
+        if (!response.ok) {
+          throw new Error('Network response was not ok');
+        }
+        const data = await response.json();
+        
+        const mappedData: DataType[] = data.map((item: any, index: number) => ({
+          key: (index + 1).toString(),
+          trainingNeed: item.course_name,
+          type: item.type,
+          date: new Date(item.date).toLocaleDateString('en-GB'), // Convert to DD/MM/YYYY format
+          personnel: item.personnel,
+          department: item.department_name,
+          status: item.status,
+          request_id: item.request_id,
+        }));
+        setTrainingData(mappedData);
+      } catch (error) {
+        console.error('Error fetching courses: ', error);
+      }
+    };
+
+    // TODO: Get all employees within department and all their attributes
+    const fetchEmployeesTrainingData = async () => {
+      try {
+        const response = await fetch(`http://localhost:8080/staff/all`);
+        if (!response.ok) {
+          throw new Error('Network response was not ok');
+        }
+        const employees = await response.json();
+
+        const employeeTrainingPromises = employees.map(async (employee: any, empIndex: number) => {
+          const trainingResponse = await fetch(`http://localhost:8080/course/staff/${employee.staff_id}`);
+          if (!trainingResponse.ok) {
+            throw new Error('Network response was not ok');
+          }
+          const trainings = await trainingResponse.json();
+
+          const completedTrainings = trainings.filter((training: any) => training.completedDateTime !== null);
+          return {
+            key: (empIndex + 1).toString(),
+            employee: employee.staff_name,
+            id: employee.staff_id.toString(),
+            division: "null", // unsure where to get this
+            designation: "null", // this is gettable
+            trainings: completedTrainings.map((training: any, trainIndex: number) => ({
+              key: (trainIndex + 1).toString(),
+              trainingNeed: training.course_name,
+              date: new Date(training.startDate).toLocaleDateString(),
+            })),
+          };
+        });
+
+        const resolvedEmployeeData = await Promise.all(employeeTrainingPromises);
+        setEmployeeData(resolvedEmployeeData);
+      } catch (error) {
+        console.error('Error fetching courses: ', error);
+      }
+    };
+
+    fetchTrainingRequests();
+    fetchEmployeesTrainingData();
+  }, []);
 
   // Page Padding
   // Flexibility & Separation of Concerns
@@ -172,7 +129,7 @@ const HodHome: React.FC = () => {
       {activeTab === 'scheduledTrainings' && (
         <>
           <div style={tableSectionStyle}>
-            
+            <SimpleTable data={trainingData} showAdditionalColumns={true} viewRoute='hrView' />
           </div>
         </>
       )}
@@ -185,4 +142,4 @@ const HodHome: React.FC = () => {
   );
 };
 
-export default HodHome;
+export default HrHome;

@@ -35,7 +35,7 @@ const ErrorPopup: React.FC<{ errors: string[], onClose: () => void }> = ({ error
           maxWidth: '80%',
           width: '400px'
         }}>
-          <h3 style={{ marginTop: 0 }}>Incomplete Fields</h3>
+          <h3 style={{ marginTop: 0 }}>Note</h3>
           <ul>
             {errors.map((error, index) => (
               <li key={index} style={{ color: 'red', marginBottom: '8px' }}>{error}</li>
@@ -105,7 +105,7 @@ const ScheduleTrainingForm: React.FC = () => {
   const [selectedCourse, setSelectedCourse] = useState('');
   const [reasons, setReasons] = useState('');
   const [date, setDate] = useState('');
-  const [department, setDepartment] = useState('Machining');
+  const [department, setDepartment] = useState('');
   const [employees, setEmployees] = useState<Employee[]>([]);
   const [selectedEmployees, setSelectedEmployees] = useState<number[]>([]);
   const [courses, setCourses] = useState<Course[]>([]);
@@ -113,6 +113,14 @@ const ScheduleTrainingForm: React.FC = () => {
   const [showErrorPopup, setShowErrorPopup] = useState(false);
   const [errorMessages, setErrorMessages] = useState<string[]>([]);
   const [showSuccessPopup, setShowSuccessPopup] = useState(false);
+  const [searchQuery, setSearchQuery] = useState('');
+  const [filteredEmployees, setFilteredEmployees] = useState<Employee[]>([]);
+
+  useEffect(() => {
+    if (userData) {
+      setDepartment(userData.department_name);
+    }
+  }, [userData]);
 
   useEffect(() => {
     const fetchCourses = async () => {
@@ -130,7 +138,7 @@ const ScheduleTrainingForm: React.FC = () => {
 
     const fetchEmployees = async () => {
       try {
-        const response = await fetch(`http://localhost:8080/staff/all`);
+        const response = await fetch(`http://localhost:8080/staff/${department}/all`);
         if (!response.ok) {
           throw new Error('Network response was not ok');
         }
@@ -148,6 +156,14 @@ const ScheduleTrainingForm: React.FC = () => {
     fetchCourses();
     fetchEmployees();
   }, [department]);
+
+  useEffect(() => {
+    const filtered = employees.filter(emp => 
+      emp.staff_name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      emp.staff_id.toString().includes(searchQuery)
+    );
+    setFilteredEmployees(filtered);
+  }, [searchQuery, employees]);
 
   const handleEmployeeSelection = (employeeId: number) => {
     setSelectedEmployees(prev =>
@@ -177,6 +193,14 @@ const ScheduleTrainingForm: React.FC = () => {
     }
     if (!date) {
       errors.push("Date is required!");
+    } else {
+      const selectedDate = new Date(date);
+      const today = new Date();
+      today.setHours(0, 0, 0, 0); // Reset time to start of day for accurate comparison
+
+      if (selectedDate <= today) {
+        errors.push("Selected date must be after today!");
+      }
     }
     if (selectedEmployees.length === 0) {
       errors.push("At least one personnel must be selected!");
@@ -194,18 +218,16 @@ const ScheduleTrainingForm: React.FC = () => {
             type: isExternal ? "External" : "Internal",
             generatedDateTime: new Date().toISOString().replace('T', ' ').slice(0, 19),
             reasons: reasons,
-            completedDateTime: "",
+            completedDateTime: null,
             status: 0,
             startDate: new Date().toISOString().replace('T', ' ').slice(0, 19),
             endDate: date,
             trainerEmail: isExternal ? trainerEmail : null,
             department_name: department,
             course_name: selectedCourse,
-            staff: selectedEmployees,
-            // TODO: personnel: number of personnels
           };
     
-          const response = await fetch('http://localhost:8080/TrainingRequest', {
+          const response = await fetch('http://localhost:8080/trainingrequest', {
             method: 'POST',
             headers: {
               'Content-Type': 'application/json',
@@ -340,6 +362,21 @@ const ScheduleTrainingForm: React.FC = () => {
     borderRadius: '4px',
   };
 
+  const searchBoxStyle: React.CSSProperties = {
+    width: '100%',
+    padding: '8px',
+    marginBottom: '10px',
+    boxSizing: 'border-box',
+    border: '1px solid #ccc',
+    borderRadius: '4px',
+  };
+
+  const noResultsStyle: React.CSSProperties = {
+    fontStyle: 'italic',
+    color: '#666',
+    marginTop: '10px',
+  };
+
   return (
     <div style={containerStyle}>
       <div style={headerStyle}>
@@ -424,19 +461,30 @@ const ScheduleTrainingForm: React.FC = () => {
               {selectedEmployees.length === employees.length ? 'Unselect All' : 'Select All'}
             </button>
           </div>
-          {employees.map((employee) => (
-            <div key={employee.staff_id} style={{ marginBottom: '8px' }}>
-              <label style={checkboxLabelStyle}>
-                <input
-                  type="checkbox"
-                  checked={selectedEmployees.includes(employee.staff_id)}
-                  onChange={() => handleEmployeeSelection(employee.staff_id)}
-                  style={checkboxStyle}
-                />
-                {employee.staff_name} (ID: {employee.staff_id})
-              </label>
-            </div>
-          ))}
+          <input
+            type="text"
+            placeholder="Search employees..."
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            style={searchBoxStyle}
+          />
+          {filteredEmployees.length > 0 ? (
+            filteredEmployees.map((employee) => (
+              <div key={employee.staff_id} style={{ marginBottom: '8px' }}>
+                <label style={checkboxLabelStyle}>
+                  <input
+                    type="checkbox"
+                    checked={selectedEmployees.includes(employee.staff_id)}
+                    onChange={() => handleEmployeeSelection(employee.staff_id)}
+                    style={checkboxStyle}
+                  />
+                  {employee.staff_name} (ID: {employee.staff_id})
+                </label>
+              </div>
+            ))
+          ) : (
+            <div style={noResultsStyle}>No matching employees found</div>
+          )}
         </div>
 
         <div style={formGroupStyle}>

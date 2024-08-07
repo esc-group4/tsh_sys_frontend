@@ -1,4 +1,3 @@
-// hodHome.tsx
 import React, { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import SimpleTable, { DataType } from './../../components/Table/Table';
@@ -11,6 +10,7 @@ const HodHome: React.FC = () => {
   const [activeTab, setActiveTab] = useState('scheduledTrainings');
   const [approvedData, setApprovedData] = useState<DataType[]>([]);
   const [pendingData, setPendingData] = useState<DataType[]>([]);
+  const [rejectedData, setRejectedData] = useState<DataType[]>([]);
   const [employeeData, setEmployeeData] = useState<EmployeeType[]>([]);
 
   useEffect(() => {
@@ -22,7 +22,6 @@ const HodHome: React.FC = () => {
   useEffect(() => {
     if (!department) return;
 
-    // TODO: Get "ApprovedTrainingRequests"
     const fetchTrainingRequests = async () => {
       try {
         const response = await fetch(`http://localhost:8080/hod/trainingrequest/${department}`);
@@ -31,35 +30,53 @@ const HodHome: React.FC = () => {
         }
         const data = await response.json();
         
-        // Filter the data based on status
         const approved = data
           .filter((item: any) => item.status === 'Approved')
-          .map((item: any) => ({
-            key: item.request_id.toString(),
+          .map((item: any, index: number) => ({
+            key: (index + 1).toString(),
+            request_id: item.request_id.toString(),
             trainingNeed: item.course_name,
             type: item.type,
             date: new Date(item.date).toLocaleDateString(),
             personnel: item.personnel,
+            status: item.status,
+            department: department,
           }));
 
         const pending = data
           .filter((item: any) => item.status === 'Pending')
-          .map((item: any) => ({
-            key: item.request_id.toString(),
+          .map((item: any, index: number) => ({
+            key: (index + 1).toString(),
+            request_id: item.request_id.toString(),
             trainingNeed: item.course_name,
             type: item.type,
             date: new Date(item.date).toLocaleDateString(),
             personnel: item.personnel,
+            status: item.status,
+            department: department,
+          }));
+
+        const rejected = data
+          .filter((item: any) => item.status === 'Rejected')
+          .map((item: any, index: number) => ({
+            key: (index + 1).toString(),
+            request_id: item.request_id.toString(),
+            trainingNeed: item.course_name,
+            type: item.type,
+            date: new Date(item.date).toLocaleDateString(),
+            personnel: item.personnel,
+            status: item.status,
+            department: department,
           }));
 
         setApprovedData(approved);
         setPendingData(pending);
+        setRejectedData(rejected);
       } catch (error) {
         console.error('Error fetching courses: ', error);
       }
     };
 
-    // TODO: Get all employees within department and all their attributes
     const fetchEmployeesTrainingData = async () => {
       try {
         const response = await fetch(`http://localhost:8080/staff/${department}/all`);
@@ -76,17 +93,25 @@ const HodHome: React.FC = () => {
           const trainings = await trainingResponse.json();
 
           const completedTrainings = trainings.filter((training: any) => training.completedDateTime !== null);
+          const trainingData = completedTrainings.length > 0
+            ? completedTrainings.map((training: any, trainIndex: number) => ({
+                key: (trainIndex + 1).toString(),
+                trainingNeed: training.course_name,
+                date: new Date(training.completedDateTime).toLocaleDateString(),
+              }))
+            : [{
+                key: '1',
+                trainingNeed: <i>No training completed yet</i>,
+                date: ''
+              }];
+
           return {
             key: (empIndex + 1).toString(),
             employee: employee.staff_name,
             id: employee.staff_id.toString(),
             division: "null", // unsure where to get this
-            designation: "null", // this is gettable
-            trainings: completedTrainings.map((training: any, trainIndex: number) => ({
-              key: (trainIndex + 1).toString(),
-              trainingNeed: training.course_name,
-              date: new Date(training.startDate).toLocaleDateString(),
-            })),
+            designation: employee.position,
+            trainings: trainingData,
           };
         });
 
@@ -101,18 +126,20 @@ const HodHome: React.FC = () => {
     fetchEmployeesTrainingData();
   }, [department]);
 
-  // Page Padding
-  // Flexibility & Separation of Concerns
   const pageStyle: React.CSSProperties = {
     padding: '20px',
   };
 
-  const linkStyle: React.CSSProperties = {
-    color: '#333',
-    padding: '8px 12px',
+  const buttonStyle: React.CSSProperties = {
+    backgroundColor: '#007bff',
+    color: 'white',
+    padding: '10px 15px',
+    borderRadius: '5px',
+    textDecoration: 'none',
     display: 'inline-block',
     transition: 'background-color 0.3s',
     marginBottom: '20px',
+    fontWeight: 'bold',
   };
 
   const headerStyle: React.CSSProperties = { 
@@ -140,8 +167,8 @@ const HodHome: React.FC = () => {
     borderRadius: '8px',
     padding: '10px 20px',
     marginBottom: '20px',
-    maxWidth: '100%', // Allow the container to adjust based on content
-    display: 'inline-block', // Adjust width based on content
+    maxWidth: '100%',
+    display: 'inline-block',
   };
 
   const approvedHeadingStyle: React.CSSProperties = {
@@ -151,12 +178,17 @@ const HodHome: React.FC = () => {
 
   const pendingHeadingStyle: React.CSSProperties = {
     ...headingContainerStyle,
+    backgroundColor: '#ffe5d9', // Light orange
+  };
+
+  const rejectedHeadingStyle: React.CSSProperties = {
+    ...headingContainerStyle,
     backgroundColor: '#f8d7da', // Light red
   };
   
   return (
     <div style={pageStyle}>
-      <Link to="/hodSchedule" style={linkStyle}>Create a Training Request</Link>
+      <Link to="/hodSchedule" style={buttonStyle}>Create a Training Request</Link>
       <div style={{ display: 'flex', marginBottom: '20px' }}>
         <div 
           style={activeTab === 'scheduledTrainings' ? activeTabStyle : tabStyle}
@@ -185,12 +217,18 @@ const HodHome: React.FC = () => {
             </div>
             <SimpleTable data={pendingData} viewRoute='hodView' />
           </div>
+          <div style={tableSectionStyle}>
+            <div style={rejectedHeadingStyle}>
+              <h1 style={headerStyle}>Rejected</h1>
+            </div>
+            <SimpleTable data={rejectedData} viewRoute='hodView' />
+          </div>
         </>
       )}
       {activeTab === 'masterlist' && (
         <div style={tableSectionStyle}>
-            <MasterlistTable data={employeeData} />
-      </div>
+          <MasterlistTable data={employeeData} />
+        </div>
       )}
     </div>
   );
