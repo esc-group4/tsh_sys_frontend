@@ -64,7 +64,6 @@ export function AuthProvider({ children }: AuthProviderProps) {
           return response.json()
         })
         .then((data) => {
-          console.log('This is User data:', data)
           setCurrentUser(data)
           setUserData(data)
           resolve(data)
