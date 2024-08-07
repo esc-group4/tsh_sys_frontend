@@ -1,9 +1,15 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useAuth } from '../../contexts/UserContext';
 
 interface Employee {
-  id: string;
-  name: string;
+  staff_id: number;
+  staff_name: string;
+}
+
+interface Course {
+  id: number;
+  course_name: string;
 }
 
 const ErrorPopup: React.FC<{ errors: string[], onClose: () => void }> = ({ errors, onClose }) => {
@@ -93,28 +99,57 @@ const SuccessPopup: React.FC<{ onClose: () => void }> = ({ onClose }) => {
 };
 
 const ScheduleTrainingForm: React.FC = () => {
+  const { userData } = useAuth();
   const [isExternal, setIsExternal] = useState(true);
   const [trainerEmail, setTrainerEmail] = useState('');
-  const [trainingName, setTrainingName] = useState('');
+  const [selectedCourse, setSelectedCourse] = useState('');
   const [reasons, setReasons] = useState('');
   const [date, setDate] = useState('');
-  const [department, setDepartment] = useState('');
+  const [department, setDepartment] = useState('Machining');
   const [employees, setEmployees] = useState<Employee[]>([]);
-  const [selectedEmployees, setSelectedEmployees] = useState<string[]>([]);
+  const [selectedEmployees, setSelectedEmployees] = useState<number[]>([]);
+  const [courses, setCourses] = useState<Course[]>([]);
   const navigate = useNavigate();
   const [showErrorPopup, setShowErrorPopup] = useState(false);
   const [errorMessages, setErrorMessages] = useState<string[]>([]);
   const [showSuccessPopup, setShowSuccessPopup] = useState(false);
 
   useEffect(() => {
-    setDepartment('Management');
-    setEmployees([
-      { id: 'TSH109962', name: 'Alina Tan' },
-      { id: 'TSH113759', name: 'Khoo Yong Lee' },
-    ]);
-  }, []);
+    const fetchCourses = async () => {
+      try {
+        const response = await fetch('http://localhost:8080/course/all');
+        if (!response.ok) {
+          throw new Error('Network response was not ok');
+        }
+        const data = await response.json();
+        setCourses(data);
+      } catch (error) {
+        console.error('Error fetching courses: ', error);
+      }
+    };
 
-  const handleEmployeeSelection = (employeeId: string) => {
+    const fetchEmployees = async () => {
+      try {
+        const response = await fetch(`http://localhost:8080/staff/all`);
+        if (!response.ok) {
+          throw new Error('Network response was not ok');
+        }
+        const data = await response.json();
+        const simplifiedEmployees: Employee[] = data.map((emp: any) => ({
+          staff_id: emp.staff_id,
+          staff_name: emp.staff_name
+        }));
+        setEmployees(simplifiedEmployees);
+      } catch (error) {
+        console.error('Error fetching employees: ', error);
+      }
+    };
+
+    fetchCourses();
+    fetchEmployees();
+  }, [department]);
+
+  const handleEmployeeSelection = (employeeId: number) => {
     setSelectedEmployees(prev =>
       prev.includes(employeeId)
         ? prev.filter(id => id !== employeeId)
@@ -126,35 +161,26 @@ const ScheduleTrainingForm: React.FC = () => {
     if (selectedEmployees.length === employees.length) {
       setSelectedEmployees([]);
     } else {
-      setSelectedEmployees(employees.map(emp => emp.id));
+      setSelectedEmployees(employees.map(emp => emp.staff_id));
     }
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     const errors: string[] = [];
 
-    // Check training name
-    if (!trainingName.trim()) {
-      errors.push("Training name is required!");
+    if (!selectedCourse) {
+      errors.push("Course selection is required!");
     }
-
-    // Check reasons
     if (!reasons.trim()) {
       errors.push("Reasons are required!");
     }
-
-    // Check date
     if (!date) {
       errors.push("Date is required!");
     }
-
-    // Check personnel involved
     if (selectedEmployees.length === 0) {
       errors.push("At least one personnel must be selected!");
     }
-
-    // Check trainer's email for external training
     if (isExternal && !trainerEmail.trim()) {
       errors.push("Trainer's email is required for external training!");
     }
@@ -163,24 +189,48 @@ const ScheduleTrainingForm: React.FC = () => {
         setErrorMessages(errors);
         setShowErrorPopup(true);
     } else {
-        console.log("Form is valid. Submitting data:", {
-          isExternal,
-          trainerEmail,
-          trainingName,
-          reasons,
-          date,
-          department,
-          selectedEmployees,
-        });
-        // Send data to backend!
-        setShowSuccessPopup(true);
+        try {
+          const trainingData = {
+            type: isExternal ? "External" : "Internal",
+            generatedDateTime: new Date().toISOString().replace('T', ' ').slice(0, 19),
+            reasons: reasons,
+            completedDateTime: "",
+            status: 0,
+            startDate: new Date().toISOString().replace('T', ' ').slice(0, 19),
+            endDate: date,
+            trainerEmail: isExternal ? trainerEmail : null,
+            department_name: department,
+            course_name: selectedCourse,
+            staff: selectedEmployees,
+            // TODO: personnel: number of personnels
+          };
+    
+          const response = await fetch('http://localhost:8080/TrainingRequest', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(trainingData),
+          });
+    
+          if (!response.ok) {
+            throw new Error('Failed to schedule training');
+          }
+    
+          setShowSuccessPopup(true);
+        } catch (error) {
+          console.error('Error scheduling training: ', error);
+          setErrorMessages(['Failed to schedule training. Please try again.']);
+          setShowErrorPopup(true);
+        }
     }
   };
 
   const handleBackClick = () => {
-    navigate(-1); // This navigates to the previous page
+    navigate(-1);
   };
 
+  // Styles
   const containerStyle: React.CSSProperties = { 
     maxWidth: '450px',
     margin: '0 auto',
@@ -256,6 +306,15 @@ const ScheduleTrainingForm: React.FC = () => {
     border: '1px solid #ccc',
   };
 
+  const selectStyle: React.CSSProperties = {
+    ...inputStyle,
+    height: 'auto',
+    minHeight: '35px',
+    whiteSpace: 'normal',
+    overflow: 'hidden',
+    textOverflow: 'ellipsis',
+  };
+
   const personnelHeaderStyle: React.CSSProperties = { 
     display: 'flex',
     justifyContent: 'space-between',
@@ -285,7 +344,7 @@ const ScheduleTrainingForm: React.FC = () => {
     <div style={containerStyle}>
       <div style={headerStyle}>
         <button onClick={handleBackClick} style={backButtonStyle}>←</button>
-        <div >
+        <div>
           <h1 style={h1Style}>Schedule Training</h1>
           <p style={departmentStyle}>{department}</p>
         </div>
@@ -329,14 +388,19 @@ const ScheduleTrainingForm: React.FC = () => {
         </div>
 
         <div style={formGroupStyle}>
-          <label style={labelStyle}>Training Name</label>
-          <input
-            type="text"
-            value={trainingName}
-            onChange={(e) => setTrainingName(e.target.value)}
-            placeholder="Enter training name..."
-            style={inputStyle}
-          />
+          <label style={labelStyle}>Courses</label>
+          <select
+            value={selectedCourse}
+            onChange={(e) => setSelectedCourse(e.target.value)}
+            style={selectStyle}
+          >
+            <option value="">Select a course...</option>
+            {courses.map((course) => (
+              <option key={course.id} value={course.course_name}>
+                {course.course_name}
+              </option>
+            ))}
+          </select>
         </div>
 
         <div style={formGroupStyle}>
@@ -361,15 +425,15 @@ const ScheduleTrainingForm: React.FC = () => {
             </button>
           </div>
           {employees.map((employee) => (
-            <div key={employee.id} style={{ marginBottom: '8px' }}>
+            <div key={employee.staff_id} style={{ marginBottom: '8px' }}>
               <label style={checkboxLabelStyle}>
                 <input
                   type="checkbox"
-                  checked={selectedEmployees.includes(employee.id)}
-                  onChange={() => handleEmployeeSelection(employee.id)}
+                  checked={selectedEmployees.includes(employee.staff_id)}
+                  onChange={() => handleEmployeeSelection(employee.staff_id)}
                   style={checkboxStyle}
                 />
-                {employee.name} (ID: {employee.id})
+                {employee.staff_name} (ID: {employee.staff_id})
               </label>
             </div>
           ))}

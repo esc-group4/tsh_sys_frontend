@@ -22,7 +22,6 @@ interface TrainingDetailProps {
 const ViewScheduled: React.FC<TrainingDetailProps> = ({
   type,
   department,
-  trainingName,
   reasons,
   date,
   personnelInvolved,
@@ -36,7 +35,6 @@ const ViewScheduled: React.FC<TrainingDetailProps> = ({
       <div className="details">
         <DetailItem label="Type:" value={type} />
         <DetailItem label="Department:" value={department} />
-        <DetailItem label="Training Name:" value={trainingName} />
         <DetailItem label="Reasons:" value={reasons} />
         <DetailItem label="Date:" value={date} />
       </div>

@@ -5,7 +5,7 @@ import MasterlistTable, { EmployeeType } from './../../components/Table/masterli
 
 const HodHome: React.FC = () => {
   const [activeTab, setActiveTab] = useState('scheduledTrainings');
-
+/*
   const trainingData: DataType[] = [
     {
       key: '1',
@@ -89,7 +89,7 @@ const HodHome: React.FC = () => {
       status: 'Completed',
     },
   ];
-
+*/
   const employeeData: EmployeeType[] = [
     { key: '1', employee: 'Khoo Yong Lee', id: 'TSH113759', division: 'Production', designation: 'MES Planner', department: 'Manufacturing', trainings: [
       { key: '1', trainingNeed: '5S Training', date: '09/09/2024' },
@@ -172,7 +172,7 @@ const HodHome: React.FC = () => {
       {activeTab === 'scheduledTrainings' && (
         <>
           <div style={tableSectionStyle}>
-            <SimpleTable data={trainingData} showAdditionalColumns={true} viewRoute='hrView' />
+            
           </div>
         </>
       )}

@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { useLocation } from 'react-router-dom';
 import { useNavigate } from 'react-router-dom';
 import { DataType } from './../../components/Table/Table';
@@ -8,6 +8,28 @@ const HodView: React.FC = () => {
   const location = useLocation();
   const navigate = useNavigate();
   const { itemData } = location.state as { itemData: DataType };
+
+  useEffect(() => {
+    console.log(itemData.request_id)
+
+
+    // TODO: Get Training Details
+    const fetchTrainingDetails = async () => {
+      try {
+        const response = await fetch('http://localhost:8080/hod/trainingrequest/detail/${itemData.key}');
+        if (!response.ok) {
+          throw new Error('Network response was not ok');
+        }
+        const data = await response.json();
+        
+        //setTrainingDetails();
+      } catch (error) {
+        console.error('Error fetching courses: ', error);
+      }
+    };
+
+    fetchTrainingDetails();
+  });
 
   // Page Padding
   // Flexibility & Separation of Concerns
