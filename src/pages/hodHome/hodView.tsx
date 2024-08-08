@@ -1,22 +1,80 @@
-import React from 'react';
-import { useLocation } from 'react-router-dom';
-import { useNavigate } from 'react-router-dom';
+import React, { useEffect, useState } from 'react';
+import { useLocation, useNavigate } from 'react-router-dom';
 import { DataType } from './../../components/Table/Table';
 import ViewScheduled from './../../components/ViewScheduled/ViewScheduled';
+
+interface FetchedData {
+  trainingRequest: {
+    status: string;
+    request_id: number;
+    course_name: string;
+    type: string;
+    date: string;
+    reasons: string;
+  };
+  staff: Array<{
+    staff_id: string;
+    staff_name: string;
+  }>;
+}
+
+interface TrainingDetails {
+  type: string;
+  department: string;
+  trainingName: string;
+  reasons: string;
+  date: string;
+  personnelInvolved: Array<{ employee: string; id: string; department: string }>;
+  status: string;
+}
 
 const HodView: React.FC = () => {
   const location = useLocation();
   const navigate = useNavigate();
   const { itemData } = location.state as { itemData: DataType };
 
-  // Page Padding
-  // Flexibility & Separation of Concerns
+  const [trainingDetails, setTrainingDetails] = useState<TrainingDetails>({
+    type: itemData.type || '',
+    department: itemData.department || '',
+    trainingName: itemData.trainingNeed || '',
+    reasons: '',
+    date: itemData.date || '',
+    personnelInvolved: [],
+    status: itemData.status || 'Unable to retrieve',
+  });
+
+  useEffect(() => {
+    const fetchTrainingDetails = async () => {
+      try {
+        const response = await fetch(`http://localhost:8080/hod/trainingrequest/detail/${itemData.request_id}`);
+        if (!response.ok) {
+          throw new Error('Network response was not ok');
+        }
+        const data: FetchedData = await response.json();
+        
+        setTrainingDetails(prevDetails => ({
+          ...prevDetails,
+          reasons: data.trainingRequest.reasons,
+          personnelInvolved: data.staff.map((staff) => ({
+            employee: staff.staff_name,
+            id: staff.staff_id,
+            department: itemData.department || '',
+          }))
+        }));
+      } catch (error) {
+        console.error('Error fetching courses: ', error);
+      }
+    };
+
+    fetchTrainingDetails();
+  });
+
   const pageStyle: React.CSSProperties = {
     padding: '20px',
   };
 
   const handleGoBack = () => {
-    navigate(-1); // This navigates to the previous page
+    navigate(-1);
   };
 
   const headerStyle: React.CSSProperties = {
@@ -31,20 +89,7 @@ const HodView: React.FC = () => {
     background: 'none',
     width: '10px',
     marginRight: '20px',
-};
-
-const trainingDetails = {
-  type: itemData.type,
-  department: itemData.department || 'Unable to retrieve',
-  trainingName: itemData.trainingNeed,
-  reasons: 'Improve proficiency with office apps', /* IMPORTANT: NEED TO RETRIEVE INFORMATION FROM DATABASE */
-  date: itemData.date,
-  personnelInvolved: [ /* IMPORTANT: NEED TO RETRIEVE INFORMATION FROM DATABASE */
-    { employee: 'Alina Tan', id: 'TSH109962', department: 'Machining' },
-    { employee: 'Khoo Yong Lee', id: 'TSH113759', department: 'Machining' },
-  ],
-  status: itemData.status || 'Unable to retrieve',
-};
+  };
 
   return (
     <div style={pageStyle}>

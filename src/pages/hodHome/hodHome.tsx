@@ -1,100 +1,145 @@
-// hodHome.tsx
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import SimpleTable, { DataType } from './../../components/Table/Table';
 import MasterlistTable, { EmployeeType } from './../../components/Table/masterlistTable';
+import { useAuth } from '../../contexts/UserContext';
 
 const HodHome: React.FC = () => {
+  const { userData } = useAuth();
+  const [department, setDepartment] = useState('');
   const [activeTab, setActiveTab] = useState('scheduledTrainings');
+  const [approvedData, setApprovedData] = useState<DataType[]>([]);
+  const [pendingData, setPendingData] = useState<DataType[]>([]);
+  const [rejectedData, setRejectedData] = useState<DataType[]>([]);
+  const [employeeData, setEmployeeData] = useState<EmployeeType[]>([]);
 
-  const approvedData: DataType[] = [
-    {
-      key: '1',
-      trainingNeed: 'Microsoft Office',
-      type: 'External',
-      date: '20/07/2024',
-      personnel: 17,
-    },
-    {
-      key: '2',
-      trainingNeed: 'ERP',
-      type: 'Internal',
-      date: '31/07/2024',
-      personnel: 10,
-    },
-    {
-      key: '3',
-      trainingNeed: 'Product Handling',
-      type: 'Internal',
-      date: '02/08/2024',
-      personnel: 13,
-    },
-  ];
+  useEffect(() => {
+    if (userData) {
+      setDepartment(userData.department_name);
+    }
+  }, [userData]);
 
-  const pendingData: DataType[] = [
-    {
-      key: '1',
-      trainingNeed: 'Quality Awareness',
-      type: 'External',
-      date: '21/11/2024',
-      personnel: 21,
-    },
-    {
-      key: '2',
-      trainingNeed: 'Tools (Jig Fixtures)',
-      type: 'Internal',
-      date: '29/11/2024',
-      personnel: 19,
-    },
-    {
-      key: '3',
-      trainingNeed: 'Hand Tools (Pneumatic)',
-      type: 'Internal',
-      date: '12/12/2024',
-      personnel: 23,
-    },
-  ];
+  useEffect(() => {
+    if (!department) return;
 
-  const employeeData: EmployeeType[] = [
-    { key: '1', employee: 'Khoo Yong Lee', id: 'TSH113759', division: 'Production', designation: 'MES Planner', trainings: [
-      { key: '1', trainingNeed: '5S Training', date: '09/09/2024' },
-      { key: '2', trainingNeed: 'Safety', date: '13/10/2024' },
-      { key: '3', trainingNeed: 'Kaizen', date: '19/11/2024' },
-    ]},
-    { key: '2', employee: 'Alina Tan', id: 'TSH109962', division: 'Production', designation: 'Assistant', trainings: [
-      { key: '1', trainingNeed: 'Counterfeit', date: '09/09/2024' },
-      { key: '2', trainingNeed: 'Safety', date: '13/10/2024' },
-      { key: '3', trainingNeed: 'CI & IP', date: '19/11/2024' },
-    ]},
-    { key: '3', employee: 'Ernest Wong', id: 'TSH108972', division: 'Production', designation: 'Leader', trainings: [
-      { key: '1', trainingNeed: '5S Training', date: '09/09/2024' },
-      { key: '2', trainingNeed: 'Tools', date: '13/10/2024' },
-      { key: '3', trainingNeed: 'Kaizen', date: '19/11/2024' },
-    ]},
-    { key: '4', employee: 'Fery James', id: 'TSH109698', division: 'Production', designation: 'Material Lead', trainings: [
-      { key: '1', trainingNeed: '5S Training', date: '09/09/2024' },
-      { key: '2', trainingNeed: 'Safety', date: '13/10/2024' },
-      { key: '3', trainingNeed: 'Quality Control', date: '19/11/2024' },
-    ]},
-    { key: '5', employee: 'Alina Tan', id: 'TSH109962', division: 'Production', designation: 'Assistant', trainings: [
-      { key: '1', trainingNeed: 'Counterfeit', date: '09/09/2024' },
-      { key: '2', trainingNeed: 'Safety', date: '13/10/2024' },
-      { key: '3', trainingNeed: 'CI & IP', date: '19/11/2024' },
-    ]},
-  ];
+    const fetchTrainingRequests = async () => {
+      try {
+        const response = await fetch(`http://localhost:8080/hod/trainingrequest/${department}`);
+        if (!response.ok) {
+          throw new Error('Network response was not ok');
+        }
+        const data = await response.json();
+        
+        const approved = data
+          .filter((item: any) => item.status === 'Approved')
+          .map((item: any, index: number) => ({
+            key: (index + 1).toString(),
+            request_id: item.request_id.toString(),
+            trainingNeed: item.course_name,
+            type: item.type,
+            date: new Date(item.date).toLocaleDateString(),
+            personnel: item.personnel,
+            status: item.status,
+            department: department,
+          }));
 
-  // Page Padding
-  // Flexibility & Separation of Concerns
+        const pending = data
+          .filter((item: any) => item.status === 'Pending')
+          .map((item: any, index: number) => ({
+            key: (index + 1).toString(),
+            request_id: item.request_id.toString(),
+            trainingNeed: item.course_name,
+            type: item.type,
+            date: new Date(item.date).toLocaleDateString(),
+            personnel: item.personnel,
+            status: item.status,
+            department: department,
+          }));
+
+        const rejected = data
+          .filter((item: any) => item.status === 'Rejected')
+          .map((item: any, index: number) => ({
+            key: (index + 1).toString(),
+            request_id: item.request_id.toString(),
+            trainingNeed: item.course_name,
+            type: item.type,
+            date: new Date(item.date).toLocaleDateString(),
+            personnel: item.personnel,
+            status: item.status,
+            department: department,
+          }));
+
+        setApprovedData(approved);
+        setPendingData(pending);
+        setRejectedData(rejected);
+      } catch (error) {
+        console.error('Error fetching courses: ', error);
+      }
+    };
+
+    const fetchEmployeesTrainingData = async () => {
+      try {
+        const response = await fetch(`http://localhost:8080/staff/${department}/all`);
+        if (!response.ok) {
+          throw new Error('Network response was not ok');
+        }
+        const employees = await response.json();
+
+        const employeeTrainingPromises = employees.map(async (employee: any, empIndex: number) => {
+          const trainingResponse = await fetch(`http://localhost:8080/course/staff/${employee.staff_id}`);
+          if (!trainingResponse.ok) {
+            throw new Error('Network response was not ok');
+          }
+          const trainings = await trainingResponse.json();
+
+          const completedTrainings = trainings.filter((training: any) => training.grade !== null);
+          const trainingData = completedTrainings.length > 0
+            ? completedTrainings.map((training: any, trainIndex: number) => ({
+                key: (trainIndex + 1).toString(),
+                trainingNeed: training.course_name,
+                date: training.completedDateTime? new Date(training.completedDateTime).toLocaleDateString() : "No recorded date",
+              }))
+            : [{
+                key: '1',
+                trainingNeed: <i>No training completed yet</i>,
+                date: ''
+              }];
+
+          return {
+            key: (empIndex + 1).toString(),
+            employee: employee.staff_name,
+            id: employee.staff_id.toString(),
+            division: "null", // unsure where to get this
+            designation: employee.position,
+            trainings: trainingData,
+          };
+        });
+
+        const resolvedEmployeeData = await Promise.all(employeeTrainingPromises);
+        setEmployeeData(resolvedEmployeeData);
+      } catch (error) {
+        console.error('Error fetching courses: ', error);
+      }
+    };
+
+    fetchTrainingRequests();
+    fetchEmployeesTrainingData();
+  }, [department]);
+
   const pageStyle: React.CSSProperties = {
     padding: '20px',
   };
 
-  const linkStyle: React.CSSProperties = {
-    color: '#333',
-    padding: '8px 12px',
+  const buttonStyle: React.CSSProperties = {
+    backgroundColor: '#007bff',
+    color: 'white',
+    padding: '10px 15px',
+    borderRadius: '5px',
+    textDecoration: 'none',
     display: 'inline-block',
     transition: 'background-color 0.3s',
     marginBottom: '20px',
+    fontWeight: 'bold',
   };
 
   const headerStyle: React.CSSProperties = { 
@@ -122,8 +167,8 @@ const HodHome: React.FC = () => {
     borderRadius: '8px',
     padding: '10px 20px',
     marginBottom: '20px',
-    maxWidth: '100%', // Allow the container to adjust based on content
-    display: 'inline-block', // Adjust width based on content
+    maxWidth: '100%',
+    display: 'inline-block',
   };
 
   const approvedHeadingStyle: React.CSSProperties = {
@@ -133,12 +178,17 @@ const HodHome: React.FC = () => {
 
   const pendingHeadingStyle: React.CSSProperties = {
     ...headingContainerStyle,
+    backgroundColor: '#ffe5d9', // Light orange
+  };
+
+  const rejectedHeadingStyle: React.CSSProperties = {
+    ...headingContainerStyle,
     backgroundColor: '#f8d7da', // Light red
   };
   
   return (
     <div style={pageStyle}>
-      <Link to="/hodschedule" style={linkStyle}>Create a Training Request</Link>
+      <Link to="/hodSchedule" style={buttonStyle}>Create a Training Request</Link>
       <div style={{ display: 'flex', marginBottom: '20px' }}>
         <div 
           style={activeTab === 'scheduledTrainings' ? activeTabStyle : tabStyle}
@@ -167,12 +217,18 @@ const HodHome: React.FC = () => {
             </div>
             <SimpleTable data={pendingData} viewRoute='hodView' />
           </div>
+          <div style={tableSectionStyle}>
+            <div style={rejectedHeadingStyle}>
+              <h1 style={headerStyle}>Rejected</h1>
+            </div>
+            <SimpleTable data={rejectedData} viewRoute='hodView' />
+          </div>
         </>
       )}
       {activeTab === 'masterlist' && (
         <div style={tableSectionStyle}>
-            <MasterlistTable data={employeeData} />
-      </div>
+          <MasterlistTable data={employeeData} />
+        </div>
       )}
     </div>
   );

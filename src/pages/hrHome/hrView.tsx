@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { DataType } from './../../components/Table/Table';
 import ViewScheduled from './../../components/ViewScheduled/ViewScheduled';
@@ -100,6 +100,31 @@ const RescheduleComponent: React.FC<{ onConfirm: (date: string) => void }> = ({ 
   );
 };
 
+interface FetchedData {
+  trainingRequest: {
+    status: string;
+    request_id: number;
+    course_name: string;
+    type: string;
+    date: string;
+    reasons: string;
+  };
+  staff: Array<{
+    staff_id: string;
+    staff_name: string;
+  }>;
+}
+
+interface TrainingDetails {
+  type: string;
+  department: string;
+  trainingName: string;
+  reasons: string;
+  date: string;
+  personnelInvolved: Array<{ employee: string; id: string; department: string }>;
+  status: string;
+}
+
 const HrView: React.FC = () => {
     const location = useLocation();
     const navigate = useNavigate();
@@ -109,6 +134,42 @@ const HrView: React.FC = () => {
     const [showDatePicker, setShowDatePicker] = useState(false);
     const [isRescheduled, setIsRescheduled] = useState(false);
   
+    const [trainingDetails, setTrainingDetails] = useState<TrainingDetails>({
+      type: itemData.type || '',
+      department: itemData.department || '',
+      trainingName: itemData.trainingNeed || '',
+      reasons: '',
+      date: itemData.date || '',
+      personnelInvolved: [],
+      status: itemData.status || 'Unable to retrieve',
+    });
+
+    useEffect(() => {
+      const fetchTrainingDetails = async () => {
+        try {
+          const response = await fetch(`http://localhost:8080/hod/trainingrequest/detail/${itemData.request_id}`);
+          if (!response.ok) {
+            throw new Error('Network response was not ok');
+          }
+          const data: FetchedData = await response.json();
+          
+          setTrainingDetails(prevDetails => ({
+            ...prevDetails,
+            reasons: data.trainingRequest.reasons,
+            personnelInvolved: data.staff.map((staff) => ({
+              employee: staff.staff_name,
+              id: staff.staff_id,
+              department: itemData.department || '',
+            }))
+          }));
+        } catch (error) {
+          console.error('Error fetching courses: ', error);
+        }
+      };
+    
+      fetchTrainingDetails();
+    });
+
     const pageStyle: React.CSSProperties = {
       padding: '20px',
     };
@@ -142,16 +203,52 @@ const HrView: React.FC = () => {
       fontWeight: 'bold',
     };
   
-    const handleApprove = () => {
-      console.log('Training approved!');
-      setSuccessMessage('Training Request Approved!');
-      setShowSuccessPopup(true);
+    const handleApprove = async () => {
+      try {
+          const response = await fetch(`http://localhost:8080/trainingrequest/status/${itemData.request_id}`, {
+              method: 'PUT',
+              headers: {
+                  'Content-Type': 'application/json',
+              },
+              body: JSON.stringify({ status: 'Approved' }),
+          });
+
+          if (!response.ok) {
+              throw new Error('Network response was not ok');
+          }
+
+          console.log('Training approved!');
+          setSuccessMessage('Training Request Approved!');
+          setShowSuccessPopup(true);
+      } catch (error) {
+          console.error('Error approving training: ', error)
+          setSuccessMessage('Error approving training. Please try again.');
+          setShowSuccessPopup(true);
+      }
     };
   
-    const handleReject = () => {
-      console.log('Training rejected!');
-      setSuccessMessage('Training Request Rejected!');
-      setShowSuccessPopup(true);
+    const handleReject = async () => {
+      try {
+          const response = await fetch(`http://localhost:8080/trainingrequest/status/${itemData.request_id}`, {
+              method: 'PUT',
+              headers: {
+                  'Content-Type': 'application/json',
+              },
+              body: JSON.stringify({ status: 'Rejected' }),
+          });
+
+          if (!response.ok) {
+              throw new Error('Network response was not ok');
+          }
+
+          console.log('Training rejected!');
+          setSuccessMessage('Training Request Rejected!');
+          setShowSuccessPopup(true);
+      } catch (error) {
+          console.error('Error rejecting training: ', error);
+          setSuccessMessage('Error rejecting training. Please try again.');
+          setShowSuccessPopup(true);
+      }
     };
   
     const handleReschedule = () => {
@@ -159,6 +256,7 @@ const HrView: React.FC = () => {
     };
 
     const handleConfirmReschedule = (date: string) => {
+      // TODO: Implement Reschedule Here
       console.log('Rescheduling training for:', date);
       setSuccessMessage('Rescheduling Successful');
       setShowSuccessPopup(true);
@@ -177,29 +275,6 @@ const HrView: React.FC = () => {
     }
       
     type Personnel = PersonnelBase | PersonnelWithStatus;
-      
-    const trainingDetails = {
-        type: itemData.type,
-        department: itemData.department || 'Unable to retrieve',
-        trainingName: itemData.trainingNeed,
-        reasons: itemData.status === 'Completed' 
-          ? 'Mandatory safety training for all personnel' 
-          : 'Improve proficiency with office apps',
-        date: itemData.date,
-        personnelInvolved: itemData.status === 'Completed' 
-          ? [
-              { employee: 'Alina Tan', id: 'TSH109962', department: 'Machining', status: 'Completed' },
-              { employee: 'Khoo Yong Lee', id: 'TSH113759', department: 'Machining', status: 'Evaluation' },
-              { employee: 'Rosaline Fernando', id: 'TSH110621', department: 'Machining', status: 'Evaluation' },
-              { employee: 'Samantha Wong', id: 'TSH138397', department: 'Machining', status: 'Completed' },
-              { employee: 'Alina Tan', id: 'TSH109962', department: 'Machining', status: 'Absent' },
-            ] as PersonnelWithStatus[]
-          : [
-              { employee: 'Alina Tan', id: 'TSH109962', department: 'Machining' },
-              { employee: 'Khoo Yong Lee', id: 'TSH113759', department: 'Machining' },
-            ] as PersonnelBase[],
-        status: itemData.status || 'Unable to retrieve',
-    };
       
     const hasAbsentEmployees = itemData.status === 'Completed' && 
         (trainingDetails.personnelInvolved as PersonnelWithStatus[]).some(person => person.status === 'Absent');      

@@ -4,10 +4,11 @@ import { Link } from 'react-router-dom';
 export interface DataType {
   key: string;
   trainingNeed: string;
+  request_id: string;
   type: string;
   date: string;
   personnel: number;
-  status?: 'Completed' | 'Pending' | 'Approved'; /* ? for optional */
+  status?: 'Completed' | 'Pending' | 'Approved' | 'Rejected'; /* ? for optional */
   department?: string;
 }
 

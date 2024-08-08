@@ -50,7 +50,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
 
   const login = (email: string, password: string): Promise<any> => {
     return new Promise((resolve, reject) => {
-      fetch('http://localhost:8080/staff/login', {
+      fetch('http://192.168.137.1:8080/staff/login', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -64,6 +64,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
           return response.json()
         })
         .then((data) => {
+          console.log(data)
           setCurrentUser(data)
           setUserData(data)
           resolve(data)

@@ -22,7 +22,6 @@ interface TrainingDetailProps {
 const ViewScheduled: React.FC<TrainingDetailProps> = ({
   type,
   department,
-  trainingName,
   reasons,
   date,
   personnelInvolved,
@@ -36,7 +35,6 @@ const ViewScheduled: React.FC<TrainingDetailProps> = ({
       <div className="details">
         <DetailItem label="Type:" value={type} />
         <DetailItem label="Department:" value={department} />
-        <DetailItem label="Training Name:" value={trainingName} />
         <DetailItem label="Reasons:" value={reasons} />
         <DetailItem label="Date:" value={date} />
       </div>
@@ -47,7 +45,6 @@ const ViewScheduled: React.FC<TrainingDetailProps> = ({
             <tr>
               <th className="table-header">Employee</th>
               <th className="table-header">ID</th>
-              <th className="table-header">Department</th>
               {showStatusColumn && <th className="table-header">Status</th>}
             </tr>
           </thead>
@@ -56,7 +53,6 @@ const ViewScheduled: React.FC<TrainingDetailProps> = ({
               <tr key={index}>
                 <td className="table-cell">{person.employee}</td>
                 <td className="table-cell">{person.id}</td>
-                <td className="table-cell">{person.department}</td>
                 {showStatusColumn && person.status && (
                   <td className={`table-cell ${getStatusClass(person.status)}`}>
                     {person.status}

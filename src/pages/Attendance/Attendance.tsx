@@ -14,7 +14,7 @@ const Attendance: React.FC = () => {
       console.log('Scanned Data:', data.text)
       try {
         const response = await fetch(
-          `http://localhost:8080/attendance/${data.text}/${staffid}`,
+          `http://192.168.137.1:8080/attendance/${data.text}/${staffid}`,
           {
             method: 'PUT',
             headers: {

@@ -27,7 +27,11 @@ const Login: React.FC = () => {
         console.log('User credential:', userCredential)
         setUserData(userCredential)
         setIsLoggedIn(true)
-        if (userCredential.staff_id === 1) {
+        if (userCredential.role == "HOD") {
+          navigate('/hodHome')
+        } else if (userCredential.role == "HR") {
+          navigate('/hrHome')
+        } else {
           navigate('/employeeHome')
         }
       } else {
