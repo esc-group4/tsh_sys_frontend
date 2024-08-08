@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react'
 import './navbar.css'
 import { useAuth } from '../../contexts/UserContext'
-import currentuserImage from '../../assets/profile.jpeg'
+import currentuserImage from '../../assets/profile.png'
 import { signOut } from 'firebase/auth'
 import { auth } from '../../config/firebase-config'
 
@@ -23,17 +23,6 @@ const NavBar: React.FC = () => {
     <nav className="navbar navbar-expand-md navbar-dark bg-dark shadow">
       <div className="container-fluid d-flex justify-content-between align-items-center">
         <div className="d-flex align-items-center">
-          <button
-            className="navbar-toggler"
-            type="button"
-            data-bs-toggle="collapse"
-            data-bs-target="#navbarSupportedContent"
-            aria-controls="navbarSupportedContent"
-            aria-expanded="false"
-            aria-label="Toggle navigation"
-          >
-            <span className="navbar-toggler-icon" />
-          </button>
           {/* Sign Out Button */}
           <button className="btn btn-danger ms-2" onClick={handleSignOut}>
             Sign Out

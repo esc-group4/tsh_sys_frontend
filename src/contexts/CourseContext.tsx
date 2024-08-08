@@ -37,7 +37,7 @@ const CourseProvider: React.FC<{ children: React.ReactNode }> = ({
       const fetchCourses = async () => {
         try {
           const response = await fetch(
-            `http://localhost:8080/course/staff/${staffId}`
+            `http://192.168.137.1:8080/course/staff/${staffId}`
           )
           if (!response.ok) {
             throw new Error('Network response was not ok')
