@@ -16,15 +16,15 @@ interface ValidationResult {
   
     if (!username.trim()) {
       isValid = false;
-      errors.username = 'Username is required';
+      errors.username = 'Username is required.';
     } else if (!emailRegex.test(username)) {
       isValid = false;
-      errors.username = 'Invalid email format';
+      errors.username = 'Invalid email format.';
     }
   
     if (!password.trim()) {
       isValid = false;
-      errors.password = 'Password is required';
+      errors.password = 'Password is required.';
     }
   
     return { isValid, errors };
